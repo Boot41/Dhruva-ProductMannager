@@ -3,10 +3,10 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from app.core.config import get_settings
 
 
 SYSTEM_PROMPT = """
@@ -43,26 +43,22 @@ def generate_roadmap(
 ) -> str:
     """Generate a structured roadmap using an LLM via LangChain.
 
-    If the OPENAI_API_KEY env var is not set but API_KEY is, we will use API_KEY for OpenAI.
+    Uses Google Gemini when an API key is present.
     """
-    # Provider selection: prefer Google if GOOGLE_API_KEY is present, else OpenAI
-    google_key = os.getenv("GOOGLE_API_KEY")
-    openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("API_KEY")
+    # Read from pydantic settings (.env supported) and fallback to raw env vars
+    settings = get_settings()
+    api_key = (settings.api_key or os.getenv("API_KEY") or os.getenv("GOOGLE_API_KEY"))
+    if not api_key:
+        raise RuntimeError(
+            "API key is not set. Please set API_KEY or GOOGLE_API_KEY in your environment/.env."
+        )
 
-    llm = None
-    if google_key:
-        # If default OpenAI-ish model is passed, pick a reasonable Gemini default
-        chosen_model = "gemini-1.5-flash"
-        llm = ChatGoogleGenerativeAI(model=chosen_model, temperature=temperature)
-    else:
-        if not openai_key:
-            raise RuntimeError(
-                "No API key found. Set GOOGLE_API_KEY for Gemini or OPENAI_API_KEY/API_KEY for OpenAI."
-            )
-        # Ensure OPENAI_API_KEY env var is set for the SDK
-        if not os.getenv("OPENAI_API_KEY") and openai_key:
-            os.environ["OPENAI_API_KEY"] = openai_key
-        llm = ChatOpenAI(model=model or "gpt-4o-mini", temperature=temperature)
+    # Reasonable default Gemini model for planning tasks
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-1.5-flash",
+        temperature=temperature,
+        google_api_key=api_key,
+    )
 
     prompt = ChatPromptTemplate.from_messages(
         [

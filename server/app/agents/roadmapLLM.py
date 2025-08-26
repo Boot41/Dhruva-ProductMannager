@@ -18,14 +18,7 @@ Follow this structure strictly:
 1) Features
    - Bullet list of top-level features extracted from the requirements.
 2) Milestones per Feature
-   - For each feature, list 3-6 milestones (schema, API, UI, integrations, testing, deployment).
-3) Day-to-Day Tasks
-   - Break each milestone into daily tasks with crisp, actionable items (1 day each when possible).
-   - Use task verbs like: Design, Implement, Migrate, Test, Document, Review, Deploy.
-4) Dependencies
-   - Note any ordering constraints between milestones/features.
-5) Deliverables & Acceptance Criteria
-   - Concrete outputs per milestone and simple acceptance criteria.
+   - For each feature, list milestones (schema, API, UI, integrations, testing, deployment).
 
 Constraints and style:
 - Reflect the provided tech stack and best practices.

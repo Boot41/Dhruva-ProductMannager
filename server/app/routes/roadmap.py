@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from app.schema import RoadmapCreate
 
 from app.agents.roadmapLLM import generate_roadmap
-from app.schema import RoadmapCreate
 
 router = APIRouter()
 

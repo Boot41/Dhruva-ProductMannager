@@ -13,6 +13,13 @@ dependencies = [
   "uvicorn[standard]>=0.30.0",
   "pydantic>=2.7.0",
   "pydantic-settings>=2.3.0",
+  # LangChain + OpenAI stack for requirement breakdown
+  "langchain>=0.2.12",
+  "langchain-openai>=0.1.22",
+  "langchain-community>=0.2.11",
+  # Google Gemini integration
+  "langchain-google-genai>=0.1.0",
+  "tiktoken>=0.7.0",
 ]
 
 [build-system]

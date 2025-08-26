@@ -2,6 +2,8 @@ README.md
 pyproject.toml
 app/__init__.py
 app/main.py
+app/agents/__init__.py
+app/agents/roadmap.py
 app/core/__init__.py
 app/core/config.py
 productmanager_server.egg-info/PKG-INFO

@@ -12,3 +12,19 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()  # loaded from environment and .env
+
+
+def load_env() -> None:
+    """Explicitly load environment variables from a .env file.
+
+    While pydantic-settings already supports env_file, some runtimes
+    prefer calling load_dotenv early to populate os.environ. This helper
+    does that in a safe, no-op manner if .env is absent.
+    """
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv(dotenv_path=".env")
+    except Exception:
+        # Don't hard-fail if python-dotenv isn't available or other minor issues occur
+        pass

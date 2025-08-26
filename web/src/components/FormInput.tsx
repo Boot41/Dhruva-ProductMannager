@@ -1,5 +1,4 @@
 import type { InputHTMLAttributes } from 'react'
-import './forminput.css'
 
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> & {
   label: string
@@ -8,10 +7,10 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> & {
 
 export default function FormInput({ label, onChange, ...rest }: Props) {
   return (
-    <label className="fi-root">
-      <span className="fi-label">{label}</span>
+    <label className="form-group">
+      <span className="label">{label}</span>
       <input
-        className="fi-input"
+        className="input"
         onChange={(e) => onChange(e.target.value)}
         {...rest}
       />

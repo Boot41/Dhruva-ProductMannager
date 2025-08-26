@@ -1,9 +1,8 @@
 import { Outlet } from 'react-router-dom'
-import './rootlayout.css'
 
 export default function RootLayout() {
   return (
-    <div className="app-shell">
+    <div className="min-h-screen grid place-items-center bg-[color:var(--color-secondary-50)]">
       <Outlet />
     </div>
   )

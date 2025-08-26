@@ -1,0 +1,9 @@
+.fi-root { display: flex; flex-direction: column; gap: 0.35rem; }
+.fi-label { font-size: 0.9rem; color: #374151; font-weight: 600; }
+.fi-input {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  outline: none;
+}
+.fi-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }

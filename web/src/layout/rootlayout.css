@@ -1,0 +1,6 @@
+.app-shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #f1f5f9 0%, #ffffff 100%);
+}

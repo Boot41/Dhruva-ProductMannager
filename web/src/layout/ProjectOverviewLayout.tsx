@@ -159,7 +159,7 @@ export default function ProjectOverviewLayout() {
   }
 
   return (
-    <div className="w-full max-w-6xl px-4">
+    <div className="w-full px-4">
       <div className="mb-4">
         <h2 className="text-2xl font-semibold text-[color:var(--color-secondary-900)]">Project Overview</h2>
         <p className="text-[color:var(--color-secondary-600)]">Drag and arrange your system components</p>

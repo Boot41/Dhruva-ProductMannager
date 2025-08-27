@@ -68,3 +68,25 @@ export type ProjectUML = {
 export async function getProjectUMLs(projectId: number): Promise<ProjectUML[]> {
   return makeAuthenticatedRequest(`/project-uml/project/${projectId}`)
 }
+
+// Persist/update UML schema for a project
+export async function saveProjectUML(projectId: number, schema: any): Promise<ProjectUML> {
+  return makeAuthenticatedRequest(`/project-uml/project/${projectId}`, {
+    method: 'PUT',
+    body: JSON.stringify(schema),
+  })
+}
+
+// Update a specific UML record by its ID (matches backend: PUT /project-uml/{uml_id})
+export type ProjectUMLUpdatePayload = {
+  project_id?: number | null
+  type: string
+  uml_schema: any
+}
+
+export async function updateProjectUML(umlId: number, payload: ProjectUMLUpdatePayload): Promise<ProjectUML> {
+  return makeAuthenticatedRequest(`/project-uml/${umlId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}

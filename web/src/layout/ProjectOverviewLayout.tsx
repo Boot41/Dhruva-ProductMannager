@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type React from 'react'
 import { useParams } from 'react-router-dom'
 import UmlComponent, { type UmlType } from '../components/UmlComponent'
-import { getProjectUMLs, type ProjectUML } from '../Api/projects'
+import { getProjectUMLs, type ProjectUML, updateProjectUML } from '../Api/projects'
 
 export type UmlNode = {
   id: string | number
@@ -27,22 +28,39 @@ function normalizeSchema(schema: any): UmlNode[] {
     : []
 
   const nodes: UmlNode[] = []
-  for (const n of raw) {
-    if (!n) continue
+  raw.forEach((n: any, idx: number) => {
+    if (!n) return
     const type: UmlType | undefined = n.type
-    if (!type) continue
+    if (!type) return
+
+    const hasCoords = n.x != null || n.y != null || n.left != null || n.top != null
+
+    // default spacing
+    const spacingX = 220
+    const spacingY = 160
+    const colCount = 4 // wrap every 4 items
+
+    const x = hasCoords
+      ? Number(n.x ?? n.left ?? 40)
+      : 40 + (idx % colCount) * spacingX
+
+    const y = hasCoords
+      ? Number(n.y ?? n.top ?? 40)
+      : 40 + Math.floor(idx / colCount) * spacingY
+
     nodes.push({
       id: n.id ?? Math.random().toString(36).slice(2),
       type,
-      x: Number(n.x ?? n.left ?? 40) || 40,
-      y: Number(n.y ?? n.top ?? 40) || 40,
+      x,
+      y,
       w: Number(n.w ?? n.width ?? 140) || 140,
       h: Number(n.h ?? n.height ?? 96) || 96,
       label: typeof n.label === 'string' ? n.label : undefined,
     })
-  }
+  })
   return nodes
 }
+
 
 function normalizeRelationships(schema: any): UmlRelationship[] {
   const raw = Array.isArray(schema?.relationships) ? schema.relationships : []
@@ -63,6 +81,7 @@ export default function ProjectOverviewLayout() {
   const [relationships, setRelationships] = useState<UmlRelationship[]>([])
   const [selectedId, setSelectedId] = useState<string | number | null>(null)
   const [moveEnabled, setMoveEnabled] = useState<boolean>(false)
+  const [currentUml, setCurrentUml] = useState<ProjectUML | null>(null)
 
   // drag state
   const draggingRef = useRef<{
@@ -83,6 +102,7 @@ export default function ProjectOverviewLayout() {
         const parsed = normalizeSchema(first?.uml_schema)
         setNodes(parsed)
         setRelationships(normalizeRelationships(first?.uml_schema))
+        setCurrentUml(first ?? null)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load UML')
       } finally {
@@ -136,12 +156,14 @@ export default function ProjectOverviewLayout() {
     )
   }
 
-  const onPointerUp = (e: React.PointerEvent) => {
+  const onPointerUp = async (e: React.PointerEvent) => {
     if (draggingRef.current.id) {
       draggingRef.current = { id: null, offsetX: 0, offsetY: 0 }
       ;(e.target as Element).releasePointerCapture?.(e.pointerId)
+      // No persistence here; saving happens only via the button click.
     }
   }
+  
 
   const canvasContent = useMemo(() => {
     // quick lookup for node center positions
@@ -234,7 +256,38 @@ export default function ProjectOverviewLayout() {
         <button
           type="button"
           className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
-          onClick={() => setMoveEnabled((v) => !v)}
+          onClick={async () => {
+            // Save only when disabling move
+            if (moveEnabled) {
+              try {
+                if (!projectId || !currentUml) {
+                  setMoveEnabled((v) => !v)
+                  return
+                }
+                const updatedSchema = {
+                  nodes: nodes.map(n => ({
+                    id: n.id,
+                    name: n.label ?? n.id,
+                    type: n.type,
+                    description: "",
+                    x: n.x,
+                    y: n.y,
+                    w: n.w,
+                    h: n.h,
+                  })),
+                  relationships
+                }
+                await updateProjectUML(currentUml.id, {
+                  project_id: Number(projectId),
+                  type: currentUml.type,
+                  uml_schema: updatedSchema,
+                })
+              } catch (err) {
+                console.error('Failed to save UML on button click', err)
+              }
+            }
+            setMoveEnabled((v) => !v)
+          }}
           aria-pressed={moveEnabled}
         >
           {moveEnabled ? 'Disable Move' : 'Enable Move'}

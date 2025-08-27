@@ -20,3 +20,10 @@ CREATE TABLE tasks (
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP DEFAULT now()
 );
+
+productmannager=# CREATE TABLE project_uml (
+    id SERIAL PRIMARY KEY,
+    project_id INT REFERENCES projects(id) ON DELETE CASCADE,
+    type VARCHAR(20) NOT NULL,
+    uml_schema JSONB NOT NULL
+);

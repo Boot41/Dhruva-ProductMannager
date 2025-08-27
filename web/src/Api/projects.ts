@@ -56,3 +56,15 @@ export async function getProject(projectId: number): Promise<Project> {
 export async function getAllProjects(): Promise<Project[]> {
   return makeAuthenticatedRequest('/projects/all/public')
 }
+
+// ---------- Project UML API ----------
+export type ProjectUML = {
+  id: number
+  project_id: number | null
+  type: string
+  uml_schema: any
+}
+
+export async function getProjectUMLs(projectId: number): Promise<ProjectUML[]> {
+  return makeAuthenticatedRequest(`/project-uml/project/${projectId}`)
+}

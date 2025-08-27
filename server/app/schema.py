@@ -132,3 +132,19 @@ class ProjectRead(BaseModel):
     owner_id: Optional[int] = None
     status: str
     created_at: datetime
+
+
+# ---------- Project UML Schemas ----------
+class ProjectUMLCreate(BaseModel):
+    project_id: Optional[int] = Field(None, description="Related project id")
+    type: str = Field(..., max_length=20, description="UML type, e.g., class, sequence")
+    uml_schema: Dict[str, Any] = Field(..., description="UML JSON schema payload")
+
+
+class ProjectUMLRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    project_id: Optional[int] = None
+    type: str
+    uml_schema: Dict[str, Any]

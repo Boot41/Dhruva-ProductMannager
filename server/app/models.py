@@ -57,3 +57,17 @@ class Project(Base):
 
     # Relationship to user
     owner = relationship("User", back_populates="projects")
+    # Relationship to UMLs
+    umls = relationship("ProjectUML", back_populates="project", cascade="all, delete-orphan")
+
+
+class ProjectUML(Base):
+    __tablename__ = "project_uml"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=True)
+    type = Column(String(20), nullable=False)
+    uml_schema = Column(JSONB, nullable=False)
+
+    # Relationship to project
+    project = relationship("Project", back_populates="umls")

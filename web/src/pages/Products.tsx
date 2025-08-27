@@ -60,8 +60,7 @@ export default function Products() {
   }
 
   const handleViewDetails = (project: Project) => {
-    // TODO: Implement view details functionality
-    console.log('View details:', project)
+    navigate(`/projects/${project.id}/overview`)
   }
 
   if (loading) {

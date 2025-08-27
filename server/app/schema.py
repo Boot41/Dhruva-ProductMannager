@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Literal
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.networks import EmailStr
@@ -51,6 +51,17 @@ class RoadmapRead(BaseModel):
     temperature: float
     content: str
     created_at: datetime
+
+
+# Request payload for generating and storing a UML system design
+class SystemDesignRequest(BaseModel):
+    features: str = Field(..., description="Product features list or description")
+    expected_users: str = Field(..., description="User types, scale, and usage patterns")
+    geography: str = Field(..., description="User locations, data residency, latency needs")
+    tech_stack: Optional[str] = Field(None, description="Selected tech stack (optional)")
+    constraints: Optional[str] = Field(None, description="Constraints/notes (optional)")
+    temperature: float = Field(0.2, ge=0.0, le=1.0)
+    project_id: Optional[int] = Field(None, description="Optional project id to associate the UML with")
 
 
 # ---------- Milestone Plan Schemas ----------
@@ -148,3 +159,34 @@ class ProjectUMLRead(BaseModel):
     project_id: Optional[int] = None
     type: str
     uml_schema: Dict[str, Any]
+
+class Node(BaseModel):
+    h: int
+    w: int
+    x: int
+    y: int
+    id: str
+    name: str
+    type: Literal["database", "service", "load_balancer", "queue", "cache"]
+    description: str
+
+
+class Relationship(BaseModel):
+    to: str
+    source: str  # previously named "from_" ("from" is reserved in Python)
+    type: str
+
+
+class UmlSchema(BaseModel):
+    nodes: List[Node]
+    relationships: List[Relationship]
+
+
+class UmlDesign(BaseModel):
+    id: int
+    project_id: Optional[int] = None
+    type: str
+    uml_schema: UmlSchema
+
+# Ensure forward references (if any) are resolved
+UmlDesign.model_rebuild()

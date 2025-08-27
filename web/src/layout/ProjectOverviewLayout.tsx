@@ -15,7 +15,7 @@ export type UmlNode = {
 }
 
 export type UmlRelationship = {
-  from: string | number
+  source: string | number
   to: string | number
   type?: string
 }
@@ -67,8 +67,8 @@ function normalizeRelationships(schema: any): UmlRelationship[] {
   const rels: UmlRelationship[] = []
   for (const r of raw) {
     if (!r) continue
-    if (r.from == null || r.to == null) continue
-    rels.push({ from: r.from, to: r.to, type: r.type })
+    if (r.source == null || r.to == null) continue
+    rels.push({ source: r.source, to: r.to, type: r.type })
   }
   return rels
 }
@@ -188,7 +188,7 @@ export default function ProjectOverviewLayout() {
             </marker>
           </defs>
           {relationships.map((r, idx) => {
-            const from = nodeById.get(r.from)
+            const from = nodeById.get(r.source)
             const to = nodeById.get(r.to)
             if (!from || !to) return null
             const fx = from.x + (from.w ?? 140) / 2

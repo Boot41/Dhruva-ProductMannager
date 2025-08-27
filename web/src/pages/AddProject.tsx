@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import { createProject, type ProjectCreate } from '../Api/projects'
+import { createSystemDesign } from '../Api/systemDesign'
 import { getUserProfile } from '../Api/user'
 
 export default function AddProject() {
@@ -21,6 +22,7 @@ export default function AddProject() {
   const [features, setFeatures] = useState('')
   const [expectedUsers, setExpectedUsers] = useState('')
   const [geography, setGeography] = useState('')
+  const [techStack, setTechStack] = useState('')
 
   useEffect(() => {
     // Fetch current user to show as the owner (owner is set server-side from token)
@@ -45,8 +47,22 @@ export default function AddProject() {
     try {
       setLoading(true)
       const payload: ProjectCreate = { name, description, status }
-      await createProject(payload)
-      // Note: features/expectedUsers/geography are collected but backend does not yet persist them for Project
+      const project = await createProject(payload)
+
+      // Fire-and-forget system design generation/store (non-blocking UX)
+      if (features || expectedUsers || geography || techStack) {
+        createSystemDesign({
+          features,
+          expected_users: expectedUsers,
+          geography,
+          tech_stack: techStack || undefined,
+          project_id: project.id,
+        }).catch((e) => {
+          // Swallow error but surface minimally to console; project creation already succeeded
+          console.error('System design generation failed:', e)
+        })
+      }
+
       navigate('/projects')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create project')
@@ -142,6 +158,19 @@ export default function AddProject() {
               onChange={(e) => setGeography(e.target.value)}
               rows={2}
               placeholder="Regions, countries, data residency, latency needs"
+              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-2">
+              Tech Stack (optional)
+            </label>
+            <input
+              type="text"
+              value={techStack}
+              onChange={(e) => setTechStack(e.target.value)}
+              placeholder="e.g., React, FastAPI, Postgres, Redis, GCP"
               className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

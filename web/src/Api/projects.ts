@@ -15,6 +15,8 @@ export type ProjectCreate = {
   status: string
 }
 
+export type ProjectUpdate = Partial<Pick<Project, 'name' | 'description' | 'status'>>
+
 const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000'
 
 async function makeAuthenticatedRequest(url: string, options: RequestInit = {}) {
@@ -51,6 +53,13 @@ export async function createProject(projectData: ProjectCreate): Promise<Project
 
 export async function getProject(projectId: number): Promise<Project> {
   return makeAuthenticatedRequest(`/projects/${projectId}`)
+}
+
+export async function updateProject(projectId: number, data: ProjectUpdate): Promise<Project> {
+  return makeAuthenticatedRequest(`/projects/${projectId}` , {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
 }
 
 export async function getAllProjects(): Promise<Project[]> {

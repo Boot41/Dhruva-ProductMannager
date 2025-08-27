@@ -1,35 +1,40 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.agents.systemDesignLLM import generate_system_design
-from app.schema import SystemDesignCreate
+from app.schema import SystemDesignRequest, ProjectUMLRead
+from app.core.db import get_db
+from app.models import ProjectUML
 
-router = APIRouter()
+router = APIRouter(tags=["system_design"])
 
 
-@router.post("/system-design")
-def create_system_design(payload: SystemDesignCreate):
+@router.post("/system-design", response_model=ProjectUMLRead, status_code=status.HTTP_201_CREATED)
+def create_system_design(payload: SystemDesignRequest, db: Session = Depends(get_db)):
     try:
-        # Prepare input model (align with existing pattern of setting content after generation)
-        sd_input = SystemDesignCreate(
+        # Generate UML design via LLM, validated by Pydantic
+        uml_design = generate_system_design(
             features=payload.features,
             expected_users=payload.expected_users,
             geography=payload.geography,
             tech_stack=payload.tech_stack,
             constraints=payload.constraints,
-            temperature=payload.temperature or 0.2,
-            content="",  # filled after generation
+            project_id=payload.project_id,
+            temperature=payload.temperature,
         )
 
-        design_text = generate_system_design(
-            features=sd_input.features,
-            expected_users=sd_input.expected_users,
-            geography=sd_input.geography,
-            tech_stack=sd_input.tech_stack,
-            constraints=sd_input.constraints,
-            temperature=sd_input.temperature,
+        # Persist to ProjectUML
+        db_item = ProjectUML(
+            project_id=payload.project_id,
+            type=uml_design.type,
+            uml_schema=uml_design.uml_schema.model_dump() if hasattr(uml_design.uml_schema, "model_dump") else uml_design.uml_schema,
         )
-        sd_input.content = design_text
-
-        return {"system_design": sd_input.content}
+        db.add(db_item)
+        db.commit()
+        db.refresh(db_item)
+        return db_item
+    except HTTPException:
+        raise
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))

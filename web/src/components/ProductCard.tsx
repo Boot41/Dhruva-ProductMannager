@@ -1,5 +1,7 @@
 import Button from './Button'
-import { type Project } from '../Api/projects'
+import { useEffect, useState } from 'react'
+import { type Project, type ProjectUpdate, updateProject } from '../Api/projects'
+import EditProjectDialog from './EditProjectDialog'
 
 interface ProductCardProps {
   project: Project
@@ -8,6 +10,33 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ project, onEdit, onViewDetails }: ProductCardProps) {
+  const [localProject, setLocalProject] = useState<Project>(project)
+  const [isEditing, setIsEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLocalProject(project)
+  }, [project])
+
+  const openEdit = () => {
+    setIsEditing(true)
+  }
+
+  const handleSubmit = async (data: ProjectUpdate) => {
+    try {
+      setSaving(true)
+      setError(null)
+      const updated = await updateProject(localProject.id, data)
+      setLocalProject(updated)
+      onEdit?.(updated)
+      setIsEditing(false)
+    } catch (e: any) {
+      setError(e?.message || 'Failed to update project')
+    } finally {
+      setSaving(false)
+    }
+  }
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString()
@@ -38,38 +67,51 @@ export default function ProductCard({ project, onEdit, onViewDetails }: ProductC
     <div className="bg-white rounded-lg border border-[color:var(--color-secondary-200)] p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
         <h3 className="text-lg font-semibold text-[color:var(--color-secondary-900)]">
-          {project.name}
+          {localProject.name}
         </h3>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-          {project.status || 'No Status'}
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(localProject.status)}`}>
+          {localProject.status || 'No Status'}
         </span>
       </div>
       
       <p className="text-[color:var(--color-secondary-600)] mb-4 text-sm">
-        {project.description}
+        {localProject.description}
       </p>
       
       <div className="space-y-2 text-xs text-[color:var(--color-secondary-500)]">
-        <div>Created: {formatDate(project.created_at)}</div>
-        <div>Owner ID: {project.owner_id}</div>
+        <div>Created: {formatDate(localProject.created_at)}</div>
+        <div>Owner ID: {localProject.owner_id}</div>
       </div>
       
       <div className="mt-4 flex gap-2">
         <Button 
           size="sm" 
           variant="secondary"
-          onClick={() => onEdit?.(project)}
+          onClick={openEdit}
         >
           Edit
         </Button>
         <Button 
           size="sm" 
           variant="secondary"
-          onClick={() => onViewDetails?.(project)}
+          onClick={() => onViewDetails?.(localProject)}
         >
           View Details
         </Button>
       </div>
+
+      <EditProjectDialog
+        open={isEditing}
+        initial={{
+          name: localProject.name,
+          description: localProject.description,
+          status: localProject.status,
+        }}
+        saving={saving}
+        error={error}
+        onCancel={() => setIsEditing(false)}
+        onSubmit={handleSubmit}
+      />
     </div>
   )
 }

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, Float, func
+from sqlalchemy import Column, Integer, String, Text, DateTime, Float, func, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 from app.core.db import Base
 
 
@@ -37,3 +39,21 @@ class User(Base):
     email = Column(String(100), nullable=False, unique=True)
     role = Column(String(50), nullable=True, default="user")
     company = Column(String(100), nullable=True)
+    skills = Column(JSONB, nullable=True)
+
+    # Relationship to projects
+    projects = relationship("Project", back_populates="owner")
+
+
+class Project(Base):
+    __tablename__ = "projects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    status = Column(String(50), nullable=False, default="development")
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationship to user
+    owner = relationship("User", back_populates="projects")

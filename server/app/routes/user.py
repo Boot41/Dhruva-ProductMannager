@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import logging
 from sqlalchemy.orm import Session
+from typing import List, Dict, Any
 
 from app import schema as schemas
 from app.core.db import get_db
@@ -61,3 +62,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 @router.get("/me", response_model=schemas.UserOut)
 def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+# Update user skills
+@router.put("/me/skills", response_model=schemas.UserOut)
+def update_skills(
+    skills_data: List[Dict[str, Any]],
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        current_user.skills = skills_data
+        db.commit()
+        db.refresh(current_user)
+        return current_user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to update skills: {str(e)}")

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.networks import EmailStr
@@ -11,6 +11,7 @@ class UserBase(BaseModel):
     username: str
     role: Optional[str] = None
     company: Optional[str] = None
+    skills: Optional[List[Dict[str, Any]]] = None
 
 
 class UserCreate(UserBase):
@@ -112,4 +113,22 @@ class SystemDesignRead(BaseModel):
     constraints: Optional[str] = None
     temperature: float
     content: str
+    created_at: datetime
+
+
+# ---------- Project Schemas ----------
+class ProjectCreate(BaseModel):
+    name: str = Field(..., description="Project name")
+    description: Optional[str] = Field(None, description="Project description")
+    status: str = Field(default="development", description="Project status")
+
+
+class ProjectRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    description: Optional[str] = None
+    owner_id: Optional[int] = None
+    status: str
     created_at: datetime

@@ -11,6 +11,7 @@ from app.routes.plan import router as plan_router
 from app.routes.tasks import router as tasks_router
 from app.routes.system_design import router as system_design_router
 from app.routes.user import router as user_router
+from app.routes.projects import router as projects_router
 
 
 # Ensure environment variables from .env are loaded at startup
@@ -27,16 +28,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/component", response_class=PlainTextResponse)
-async def get_component():
-    return """
-export default function ServerComponent() {
-  return <div style={{ color: "green", fontWeight: "bold" }}>
-    Dynamic Component ✅ from FastAPI
-  </div>;
-}
-    """
-
 # Include routers
 app.include_router(health_router)
 app.include_router(root_router)
@@ -46,3 +37,4 @@ app.include_router(plan_router)
 app.include_router(tasks_router)
 app.include_router(system_design_router)
 app.include_router(user_router)
+app.include_router(projects_router)

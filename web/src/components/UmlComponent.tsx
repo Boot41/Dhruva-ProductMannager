@@ -13,6 +13,8 @@ export interface UmlComponentProps {
   type: UmlType
   // Optional
   label?: string
+  id?: string
+  name?: string
   selected?: boolean
   onClick?: () => void
 }
@@ -30,7 +32,7 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
 }
 
-export default function UmlComponent({ x, y, type, label, selected, onClick }: UmlComponentProps) {
+export default function UmlComponent({ x, y, type, label, id, name, selected, onClick }: UmlComponentProps) {
   // Normalize sizes. x and y act like width/height suggestions.
   const width = clamp(x || 120, 64, 320)
   const height = clamp(y || 80, 48, 240)
@@ -173,7 +175,9 @@ export default function UmlComponent({ x, y, type, label, selected, onClick }: U
       role="button"
       onClick={onClick}
       style={{ width: svgWidth, height: svgHeight, display: 'inline-block', cursor: onClick ? 'pointer' : 'default' }}
-      aria-label={label || type}
+      aria-label={name || label || id || type}
+      id={id}
+      data-name={name}
     >
       <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
         {/* Shape */}
@@ -186,7 +190,7 @@ export default function UmlComponent({ x, y, type, label, selected, onClick }: U
         </g>
 
         {/* Label */}
-        {label && (
+        {(label || name || id) && (
           <text
             x={svgWidth / 2}
             y={svgHeight - 10}
@@ -195,7 +199,7 @@ export default function UmlComponent({ x, y, type, label, selected, onClick }: U
             fill="#111827"
             style={{ userSelect: 'none' }}
           >
-            {label}
+            {label ?? name ?? id}
           </text>
         )}
 

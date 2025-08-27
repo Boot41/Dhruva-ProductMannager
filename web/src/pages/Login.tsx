@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { login } from '../Api/auth'
 import FormInput from '../components/FormInput'
 import Button from '../components/Button'
 
 export default function Login() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,9 +16,9 @@ export default function Login() {
     setError(null)
     setLoading(true)
     try {
-      await login({ email, password })
-      // TODO: navigate to dashboard/home once available
-      alert('Logged in (mock). Wire this to your backend and navigate as needed.')
+      const { access_token } = await login({ email, password })
+      // Navigate to dummy landing page
+      if (access_token) navigate('/landing', { replace: true })
     } catch (err: any) {
       setError(err?.message || 'Login failed')
     } finally {

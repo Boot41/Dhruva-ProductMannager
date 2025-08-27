@@ -3,6 +3,32 @@ from __future__ import annotations
 from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
+from pydantic.networks import EmailStr
+
+class UserBase(BaseModel):
+    email: EmailStr
+    name: str
+    username: str
+    role: Optional[str] = None
+    company: Optional[str] = None
+
+
+class UserCreate(UserBase):
+    password: str = Field(min_length=8)
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class UserOut(UserBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Token(BaseModel):
+    access_token: str
 
 
 # ---------- Roadmap Schemas ----------

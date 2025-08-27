@@ -9,7 +9,12 @@ Description-Content-Type: text/markdown
 Requires-Dist: fastapi>=0.115.0
 Requires-Dist: uvicorn[standard]>=0.30.0
 Requires-Dist: pydantic>=2.7.0
+Requires-Dist: email-validator>=2.2.0
 Requires-Dist: pydantic-settings>=2.3.0
+Requires-Dist: sqlalchemy>=2.0.0
+Requires-Dist: psycopg2-binary>=2.9.0
+Requires-Dist: passlib[bcrypt]>=1.7.4
+Requires-Dist: python-dotenv>=1.0.0
 Requires-Dist: langchain>=0.2.12
 Requires-Dist: langchain-openai>=0.1.22
 Requires-Dist: langchain-community>=0.2.11

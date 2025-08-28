@@ -10,7 +10,7 @@ from langchain.tools import Tool, tool # Import Tool and tool decorator
 from pydantic import BaseModel, Field
 
 from app.core.config import get_settings
-from app.agents.tasksLLM import create_new_task_tool # Import the tool
+from app.agents.tasksLLM import create_new_task_tool, get_tasks_for_user_by_status_tool # Import the new tool
 
 
 SYSTEM_PROMPT = """
@@ -78,7 +78,25 @@ def chat_with_agent(
             eta=eta,
         )
 
-    tools = [create_task_for_agent] # Register the new tool
+    @tool
+    def get_tasks_for_agent(
+        status: Optional[str] = None,
+    ) -> str:
+        """
+        Retrieves a list of tasks assigned to the current user, optionally filtered by status.
+
+        Args:
+            status (Optional[str], optional): The status of the tasks to filter by (e.g., "todo", "in progress", "completed").
+                                              If None, retrieves tasks with "todo" or "in progress" status.
+        Returns:
+            str: A formatted string listing the tasks, or a message if no tasks are found.
+        """
+        return get_tasks_for_user_by_status_tool.func(
+            user_id=current_user_id,
+            status=status,
+        )
+
+    tools = [create_task_for_agent, get_tasks_for_agent] # Register the new tool
 
     prompt = ChatPromptTemplate.from_messages(
         [

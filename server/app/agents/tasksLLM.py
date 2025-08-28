@@ -145,3 +145,45 @@ Please produce a day-to-day task plan per milestone now.
         }
     )
     return result["output"] if "output" in result else str(result)
+
+
+@tool
+def get_tasks_for_user_by_status_tool(
+    user_id: int,
+    status: Optional[str] = None,
+) -> str:
+    """
+    Retrieves a list of tasks assigned to a specific user, optionally filtered by status.
+
+    Args:
+        user_id (int): The ID of the user whose tasks are to be retrieved.
+        status (Optional[str], optional): The status of the tasks to filter by (e.g., "todo", "in progress", "completed").
+                                          If None, retrieves tasks with "todo" or "in progress" status.
+    Returns:
+        str: A formatted string listing the tasks, or a message if no tasks are found.
+    """
+    db = SessionLocal()
+    try:
+        query = db.query(TaskAssignment).filter(TaskAssignment.user_id == user_id)
+        if status:
+            query = query.filter(TaskAssignment.status == status)
+        else:
+            query = query.filter(TaskAssignment.status.in_(["todo", "in progress"]))
+
+        tasks = query.all()
+
+        if not tasks:
+            return f"No tasks found for user ID {user_id} with status '{status}'." if status else f"No 'todo' or 'in progress' tasks found for user ID {user_id}."
+
+        task_list = []
+        for task in tasks:
+            eta_str = task.eta.isoformat() if task.eta else "N/A"
+            task_list.append(
+                f"- Task ID: {task.id}, Description: {task.description}, Status: {task.status}, Project ID: {task.project_id}, ETA: {eta_str}"
+            )
+        return "Tasks:\n" + "\n".join(task_list)
+    except Exception as e:
+        db.rollback()
+        return f"Failed to retrieve tasks: {e}"
+    finally:
+        db.close()

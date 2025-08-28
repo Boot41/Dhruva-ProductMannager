@@ -5,6 +5,7 @@ import UmlComponent, { type UmlType } from '../components/UmlComponent'
 import { getProjectUMLs, type ProjectUML, updateProjectUML } from '../Api/projects'
 import AddNodeDialog, { type AddNodeData } from '../components/AddNodeDialog'
 import AddRelationshipDialog, { type AddRelationshipData } from '../components/AddRelationshipDialog'
+import ChatBubble from '../components/ChatBubble'
 
 export type UmlNode = {
   id: string | number
@@ -396,6 +397,7 @@ export default function ProjectOverviewLayout() {
         onCancel={() => setAddRelOpen(false)}
         onSubmit={handleAddRelationshipSubmit}
       />
+      <ChatBubble />
     </div>
   )
 }

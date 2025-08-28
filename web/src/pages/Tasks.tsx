@@ -3,6 +3,7 @@ import { listMyTaskAssignments, type TaskAssignment } from '../Api/tasks'
 import Button from '../components/Button'
 import TaskCreateFormDialog from '../components/TaskCreateFormDialog'
 import TaskItem from '../components/TaskItem'
+import ChatBubble from '../components/ChatBubble'
 
 export default function Tasks() {
   const [items, setItems] = useState<TaskAssignment[]>([])
@@ -68,6 +69,7 @@ export default function Tasks() {
             <TaskItem key={t.id} task={t} onTaskUpdated={triggerRefresh} />
           ))}
       </div>
+      <ChatBubble />
     </div>
   )
 }

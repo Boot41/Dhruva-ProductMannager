@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import ProductCard from '../components/ProductCard'
 import { getProjects, createProject, type Project, type ProjectCreate } from '../Api/projects'
+import ChatBubble from '../components/ChatBubble'
 
 export default function Products() {
   const navigate = useNavigate()
@@ -189,6 +190,7 @@ export default function Products() {
           </Button>
         </div>
       )}
+      <ChatBubble />
     </div>
   )
 }

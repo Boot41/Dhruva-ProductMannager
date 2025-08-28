@@ -1,53 +1,60 @@
 
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Button from '../components/Button'
-import { createProject, type ProjectCreate } from '../Api/projects'
-import { createSystemDesign } from '../Api/systemDesign'
-import { getUserProfile } from '../Api/user'
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
+import { createProject, type ProjectCreate } from '../Api/projects';
+import { createSystemDesign } from '../Api/systemDesign';
+import { getUserProfile } from '../Api/user';
+import UserSearchInput from '../components/UserSearchInput';
+import type { User } from '../Api/auth';
 
 export default function AddProject() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [ownerName, setOwnerName] = useState<string>('Loading...')
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [ownerName, setOwnerName] = useState<string>('Loading...');
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Project core fields (what backend actually accepts)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [status, setStatus] = useState('development')
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState('development');
+  const [lead, setLead] = useState<string | undefined>(undefined);
 
   // Extra context fields (not yet stored by backend schema, collected for future use)
-  const [features, setFeatures] = useState('')
-  const [expectedUsers, setExpectedUsers] = useState('')
-  const [geography, setGeography] = useState('')
-  const [techStack, setTechStack] = useState('')
+  const [features, setFeatures] = useState('');
+  const [expectedUsers, setExpectedUsers] = useState('');
+  const [geography, setGeography] = useState('');
+  const [techStack, setTechStack] = useState('');
 
   useEffect(() => {
     // Fetch current user to show as the owner (owner is set server-side from token)
     getUserProfile()
-      .then((u) => setOwnerName(u.name || u.email))
-      .catch(() => setOwnerName('Current user'))
-  }, [])
+      .then((u) => {
+        setUser(u);
+        setOwnerName(u.name || u.email);
+      })
+      .catch(() => setOwnerName('Current user'));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (!name.trim()) {
-      setError('Please enter a project name')
-      return
+      setError('Please enter a project name');
+      return;
     }
     if (!description.trim()) {
-      setError('Please enter a project description')
-      return
+      setError('Please enter a project description');
+      return;
     }
 
     try {
-      setLoading(true)
-      const payload: ProjectCreate = { name, description, status }
-      const project = await createProject(payload)
+      setLoading(true);
+      const payload: ProjectCreate = { name, description, status, lead };
+      const project = await createProject(payload);
 
       // Fire-and-forget system design generation/store (non-blocking UX)
       if (features || expectedUsers || geography || techStack) {
@@ -59,17 +66,17 @@ export default function AddProject() {
           project_id: project.id,
         }).catch((e) => {
           // Swallow error but surface minimally to console; project creation already succeeded
-          console.error('System design generation failed:', e)
-        })
+          console.error('System design generation failed:', e);
+        });
       }
 
-      navigate('/projects')
+      navigate('/projects');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create project')
+      setError(err instanceof Error ? err.message : 'Failed to create project');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="px-4 py-8">
@@ -121,6 +128,25 @@ export default function AddProject() {
               placeholder="Briefly describe the project goals and scope"
               className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-2">
+              Project Lead
+            </label>
+            {user?.company ? (
+              <UserSearchInput
+                companyName={user.company}
+                onSelectUser={(username) => setLead(username)}
+              />
+            ) : (
+              <input
+                type="text"
+                placeholder="Enter lead username"
+                className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+                onChange={(e) => setLead(e.target.value || undefined)}
+              />
+            )}
           </div>
 
           <div>
@@ -208,5 +234,5 @@ export default function AddProject() {
         </form>
       </div>
     </div>
-  )
+  );
 }

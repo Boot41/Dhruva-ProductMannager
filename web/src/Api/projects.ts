@@ -13,6 +13,7 @@ export type ProjectCreate = {
   name: string
   description: string
   status: string
+  lead?: string
 }
 
 export type ProjectUpdate = Partial<Pick<Project, 'name' | 'description' | 'status'>>

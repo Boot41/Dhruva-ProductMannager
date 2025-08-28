@@ -34,15 +34,29 @@ def create_project(
 ):
     """Create a new project"""
     try:
-        # Use current user ID if authenticated, otherwise default to user ID 1
-        owner_id = current_user.id if current_user else 1
-        
+        # Set owner_id from the authenticated user, or default to 1 if no user
+        if current_user:
+            owner_id = current_user.id
+        else:
+            owner_id = 1 # Fallback for unauthenticated requests
+
+        lead_id = None
+        if project_data.lead:
+            lead_user = db.query(User).filter(User.username == project_data.lead).first()
+            if not lead_user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Lead user '{project_data.lead}' not found"
+                )
+            lead_id = lead_user.id
+
         # Create new project
         db_project = Project(
             name=project_data.name,
             description=project_data.description,
             status=project_data.status,
-            owner_id=owner_id
+            owner_id=owner_id,
+            lead=lead_id
         )
         
         db.add(db_project)

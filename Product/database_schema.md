@@ -55,6 +55,7 @@ Referenced by:
  owner_id    | integer                     |           |          | 
  created_at  | timestamp without time zone |           |          | now()
  status      | text                        |           |          | 'active'::text
+ lead        | integer                     |           |          |  
 Indexes:
     "projects_pkey" PRIMARY KEY, btree (id)
 Foreign-key constraints:
@@ -62,6 +63,8 @@ Foreign-key constraints:
 Referenced by:
     TABLE "project_uml" CONSTRAINT "project_uml_project_id_fkey" FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
     TABLE "tasks" CONSTRAINT "tasks_project_id_fkey" FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+
+
 
                                          Table "public.tasks"
    Column    |            Type             | Collation | Nullable |              Default              

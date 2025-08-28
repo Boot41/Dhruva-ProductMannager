@@ -42,7 +42,11 @@ class User(Base):
     skills = Column(JSONB, nullable=True)
 
     # Relationship to projects
-    projects = relationship("Project", back_populates="owner")
+    projects = relationship(
+        "Project",
+        back_populates="owner",
+        foreign_keys="Project.owner_id",
+    )
 
 
 class Project(Base):
@@ -54,9 +58,13 @@ class Project(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     status = Column(String(50), nullable=False, default="development")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
+    lead = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     # Relationship to user
-    owner = relationship("User", back_populates="projects")
+    owner = relationship(
+        "User",
+        back_populates="projects",
+        foreign_keys=[owner_id],
+    )
     # Relationship to UMLs
     umls = relationship("ProjectUML", back_populates="project", cascade="all, delete-orphan")
 

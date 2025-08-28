@@ -46,6 +46,8 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
         # Generic 500 Internal Server Error fallback
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {str(e)}")
 
+
+
 # Get the current authenticated user
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     try:
@@ -78,3 +80,5 @@ def update_skills(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to update skills: {str(e)}")
+
+

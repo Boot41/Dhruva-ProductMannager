@@ -34,3 +34,8 @@ export async function updateUserSkills(skills: Record<string, any>): Promise<Use
 export async function getUserProfile(): Promise<User> {
   return makeAuthenticatedRequest('/auth/me')
 }
+
+export async function searchEmployees(companyName: string, query: string): Promise<User[]> {
+  console.log('Searching employees with query:', query, 'in company:', companyName)
+  return makeAuthenticatedRequest(`/company/${companyName}/employees/search?q=${query}`)
+}

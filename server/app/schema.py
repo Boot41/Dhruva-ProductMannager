@@ -132,7 +132,7 @@ class ProjectCreate(BaseModel):
     name: str = Field(..., description="Project name")
     description: Optional[str] = Field(None, description="Project description")
     status: str = Field(default="development", description="Project status")
-
+    lead: Optional[str] = None
 
 class ProjectRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)

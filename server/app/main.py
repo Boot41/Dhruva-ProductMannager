@@ -13,6 +13,7 @@ from app.routes.system_design import router as system_design_router
 from app.routes.user import router as user_router
 from app.routes.projects import router as projects_router
 from app.routes.project_uml import router as project_uml_router
+from app.routes.company import router as company_router
 
 
 # Ensure environment variables from .env are loaded at startup
@@ -40,3 +41,4 @@ app.include_router(system_design_router)
 app.include_router(user_router)
 app.include_router(projects_router)
 app.include_router(project_uml_router)
+app.include_router(company_router)

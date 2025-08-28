@@ -10,6 +10,21 @@ High-level reference for the Product Manager DB. Includes an overview, ER diagra
 - [project_uml](#table-project_uml)
 - [Raw psql dump](#raw-psql-dump)
 
+## Table: task_assignments
+
+| Column       | Type                 | Nullable | References                         |
+| ------------ | -------------------- | -------- | ---------------------------------- |
+| id           | integer (PK)         | not null |                                    |
+| user_id      | integer              | not null | → users(id)                        |
+| project_id   | integer              | not null | → projects(id)                     |
+| description  | text                 |          |                                    |
+| type         | text                 |          | e.g. `bug`, `feature`, `task`      |
+| status       | text                 |          | e.g. `todo`, `in-progress`, `done` |
+| assigned_by  | integer              | not null | → users(id) (the assigner)         |
+| eta          | timestamp without tz |          | expected completion                |
+| created_at   | timestamp without tz |          | default now()                      |
+
+
 ## ER diagram (simplified)
 
 ```
@@ -189,3 +204,18 @@ This section reformats the raw psql output above into a concise, human-friendly 
 Notes:
 - Timestamps are without time zone.
 - JSONB columns store structured data for `users.skills` and `project_uml.uml_schema`.
+
+task_assignments table
+
+| Column       | Type                 | Nullable | References                         |
+| ------------ | -------------------- | -------- | ---------------------------------- |
+| id           | integer (PK)         | not null |                                    |
+| user_id      | integer              | not null | → users(id)                        |
+| project_id   | integer              | not null | → projects(id)                     |
+| description  | text                 |          |                                    |
+| type         | text                 |          | e.g. `bug`, `feature`, `task`      |
+| status       | text                 |          | e.g. `todo`, `in-progress`, `done` |
+| assigned_by  | integer              | not null | → users(id) (the assigner)         |
+| eta          | timestamp without tz |          | expected completion                |
+| created_at   | timestamp without tz |          | default now()                      |
+

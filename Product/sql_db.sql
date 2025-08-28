@@ -27,3 +27,15 @@ productmannager=# CREATE TABLE project_uml (
     type VARCHAR(20) NOT NULL,
     uml_schema JSONB NOT NULL
 );
+
+CREATE TABLE task_assignments (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    description TEXT,
+    type TEXT,
+    status TEXT CHECK (status IN ('todo', 'in-progress', 'blocked', 'done')),
+    assigned_by INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+    eta TIMESTAMP WITHOUT TIME ZONE,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
+);

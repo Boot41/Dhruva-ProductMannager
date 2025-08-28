@@ -1,18 +1,20 @@
 import Button from './Button'
 import { useEffect, useState } from 'react'
-import { type Project, type ProjectUpdate, updateProject } from '../Api/projects'
+import { type Project, type ProjectUpdate, updateProject, deleteProject } from '../Api/projects'
 import EditProjectDialog from './EditProjectDialog'
 
 interface ProductCardProps {
   project: Project
   onEdit?: (project: Project) => void
   onViewDetails?: (project: Project) => void
+  onDelete?: (id: number) => void   // new callback
 }
 
-export default function ProductCard({ project, onEdit, onViewDetails }: ProductCardProps) {
+export default function ProductCard({ project, onEdit, onViewDetails, onDelete }: ProductCardProps) {
   const [localProject, setLocalProject] = useState<Project>(project)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -37,6 +39,20 @@ export default function ProductCard({ project, onEdit, onViewDetails }: ProductC
       setSaving(false)
     }
   }
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete "${localProject.name}"?`)) return
+    try {
+      setDeleting(true)
+      await deleteProject(localProject.id)
+      onDelete?.(localProject.id)   // notify parent
+    } catch (e: any) {
+      setError(e?.message || 'Failed to delete project')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString()
@@ -97,6 +113,14 @@ export default function ProductCard({ project, onEdit, onViewDetails }: ProductC
           onClick={() => onViewDetails?.(localProject)}
         >
           View Details
+        </Button>
+        <Button 
+          size="sm" 
+          variant="primary"
+          disabled={deleting}
+          onClick={handleDelete}
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
         </Button>
       </div>
 

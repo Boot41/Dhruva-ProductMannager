@@ -99,3 +99,21 @@ export async function updateProjectUML(umlId: number, payload: ProjectUMLUpdateP
     body: JSON.stringify(payload),
   })
 }
+
+export async function deleteProject(projectId: number): Promise<void> {
+  const token = getAuthToken()
+  const headers = {
+    ...(token && { Authorization: `Bearer ${token}` }),
+  }
+
+  const response = await fetch(`${API_BASE}/projects/${projectId}`, {
+    method: 'DELETE',
+    headers,
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
+  }
+  return
+}

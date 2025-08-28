@@ -3,6 +3,8 @@ import type React from 'react'
 import { useParams } from 'react-router-dom'
 import UmlComponent, { type UmlType } from '../components/UmlComponent'
 import { getProjectUMLs, type ProjectUML, updateProjectUML } from '../Api/projects'
+import AddNodeDialog, { type AddNodeData } from '../components/AddNodeDialog'
+import AddRelationshipDialog, { type AddRelationshipData } from '../components/AddRelationshipDialog'
 
 export type UmlNode = {
   id: string | number
@@ -82,6 +84,10 @@ export default function ProjectOverviewLayout() {
   const [selectedId, setSelectedId] = useState<string | number | null>(null)
   const [moveEnabled, setMoveEnabled] = useState<boolean>(false)
   const [currentUml, setCurrentUml] = useState<ProjectUML | null>(null)
+  const [addNodeOpen, setAddNodeOpen] = useState(false)
+  const [addRelOpen, setAddRelOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [dialogError, setDialogError] = useState<string | null>(null)
 
   // drag state
   const draggingRef = useRef<{
@@ -164,6 +170,67 @@ export default function ProjectOverviewLayout() {
     }
   }
   
+  const persistSchema = async (nextNodes: UmlNode[], nextRelationships: UmlRelationship[]) => {
+    if (!projectId || !currentUml) return
+    const updatedSchema = {
+      nodes: nextNodes.map(n => ({
+        id: n.id,
+        name: n.label ?? n.id,
+        type: n.type,
+        description: "",
+        x: n.x,
+        y: n.y,
+        w: n.w,
+        h: n.h,
+      })),
+      relationships: nextRelationships,
+    }
+    await updateProjectUML(currentUml.id, {
+      project_id: Number(projectId),
+      type: currentUml.type,
+      uml_schema: updatedSchema,
+    })
+  }
+
+  const handleAddNodeSubmit = async (data: AddNodeData) => {
+    try {
+      setSaving(true)
+      setDialogError(null)
+      const newNode: UmlNode = {
+        id: data.id || data.name,
+        type: data.type as UmlType,
+        x: data.x,
+        y: data.y,
+        w: data.w,
+        h: data.h,
+        label: data.name,
+      }
+      const nextNodes = [...nodes, newNode]
+      setNodes(nextNodes)
+      await persistSchema(nextNodes, relationships)
+      setAddNodeOpen(false)
+    } catch (e: any) {
+      setDialogError(e?.message || 'Failed to add node')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleAddRelationshipSubmit = async (data: AddRelationshipData) => {
+    try {
+      setSaving(true)
+      setDialogError(null)
+      const nextRelationships = [...relationships, { source: data.source, to: data.to, type: data.type }]
+      setRelationships(nextRelationships)
+      await persistSchema(nodes, nextRelationships)
+      setAddRelOpen(false)
+    } catch (e: any) {
+      setDialogError(e?.message || 'Failed to add relationship')
+    } finally {
+      setSaving(false)
+    }
+  }
+
 
   const canvasContent = useMemo(() => {
     // quick lookup for node center positions
@@ -252,7 +319,25 @@ export default function ProjectOverviewLayout() {
         <h2 className="text-2xl font-semibold text-[color:var(--color-secondary-900)]">Project Overview</h2>
         <p className="text-[color:var(--color-secondary-600)]">Drag and arrange your system components</p>
       </div>
-      <div className="mb-2 flex justify-end">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+            onClick={() => setAddNodeOpen(true)}
+            disabled={!currentUml}
+          >
+            Add Node
+          </button>
+          <button
+            type="button"
+            className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+            onClick={() => setAddRelOpen(true)}
+            disabled={!currentUml || nodes.length < 2}
+          >
+            Add Relationship
+          </button>
+        </div>
         <button
           type="button"
           className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
@@ -294,6 +379,23 @@ export default function ProjectOverviewLayout() {
         </button>
       </div>
       {canvasContent}
+
+      <AddNodeDialog
+        open={addNodeOpen}
+        saving={saving}
+        error={dialogError}
+        onCancel={() => setAddNodeOpen(false)}
+        onSubmit={handleAddNodeSubmit}
+      />
+
+      <AddRelationshipDialog
+        open={addRelOpen}
+        nodeIds={nodes.map(n => String(n.id))}
+        saving={saving}
+        error={dialogError}
+        onCancel={() => setAddRelOpen(false)}
+        onSubmit={handleAddRelationshipSubmit}
+      />
     </div>
   )
 }

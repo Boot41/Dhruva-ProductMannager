@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from fastapi import Path
 
 from app import schema as schemas
 from app.core.db import get_db
@@ -105,7 +106,87 @@ def get_project(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch project: {str(e)}"
+            detail=f"Failed to fetch projeACct: {str(e)}"   
+        )
+
+@router.put("/{project_id}", response_model=schemas.ProjectRead)
+def update_project(
+    project_id: int = Path(..., description="The ID of the project to update"),
+    project_data: schemas.ProjectUpdate = None,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """Update an existing project"""
+    try:
+        # Use current user ID if authenticated, otherwise default to user ID 1
+        owner_id = current_user.id if current_user else 1
+
+        # Find the project
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.owner_id == owner_id
+        ).first()
+
+        if not project:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found"
+            )
+
+        # Update allowed fields
+        if project_data.name is not None:
+            project.name = project_data.name
+        if project_data.description is not None:
+            project.description = project_data.description
+        if project_data.status is not None:
+            project.status = project_data.status
+
+        db.commit()
+        db.refresh(project)
+        return project
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update project: {str(e)}"
+        )
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_project(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """Delete a project by ID"""
+    try:
+        # Use current user ID if authenticated, otherwise default to user ID 1
+        owner_id = current_user.id if current_user else 1
+
+        project = db.query(Project).filter(
+            Project.id == project_id,
+            Project.owner_id == owner_id
+        ).first()
+
+        if not project:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project not found"
+            )
+
+        db.delete(project)
+        db.commit()
+        return  # 204 has no body
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete project: {str(e)}"
         )
 
 

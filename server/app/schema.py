@@ -160,6 +160,11 @@ class ProjectUMLRead(BaseModel):
     type: str
     uml_schema: Dict[str, Any]
 
+class ProjectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+
 class Node(BaseModel):
     h: int
     w: int

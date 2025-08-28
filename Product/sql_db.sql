@@ -43,3 +43,14 @@ CREATE TABLE task_assignments (
     eta TIMESTAMP WITHOUT TIME ZONE,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
 );
+
+CREATE TABLE user_projects (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    project_id INT NOT NULL,
+    role TEXT DEFAULT 'member',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);

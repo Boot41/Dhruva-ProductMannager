@@ -18,6 +18,14 @@ export type ProjectCreate = {
 
 export type ProjectUpdate = Partial<Pick<Project, 'name' | 'description' | 'status'>>
 
+export type UserProject = {
+  id: number
+  user_id: number
+  project_id: number
+  role: string
+  created_at: string
+}
+
 const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000'
 
 async function makeAuthenticatedRequest(url: string, options: RequestInit = {}) {
@@ -65,6 +73,14 @@ export async function updateProject(projectId: number, data: ProjectUpdate): Pro
 
 export async function getAllProjects(): Promise<Project[]> {
   return makeAuthenticatedRequest('/projects/all/public')
+}
+
+export async function getUserProjects(userId: number): Promise<Project[]> {
+  const userProjectAssociations: UserProject[] = await makeAuthenticatedRequest(`/user-projects/user/${userId}`)
+  const projectPromises = userProjectAssociations.map(async (association) => {
+    return getProject(association.project_id)
+  })
+  return Promise.all(projectPromises)
 }
 
 // ---------- Project UML API ----------

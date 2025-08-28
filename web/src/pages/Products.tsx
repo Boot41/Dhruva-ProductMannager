@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import ProductCard from '../components/ProductCard'
-import { getProjects, createProject, type Project, type ProjectCreate } from '../Api/projects'
+import { getProjects, createProject, type Project, type ProjectCreate, getUserProjects } from '../Api/projects'
 import { getCurrentUser, type User } from '../Api/auth'
 import ChatBubble from '../components/ChatBubble'
 
@@ -20,9 +20,14 @@ export default function Products() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
-    loadProjects()
     loadCurrentUser()
   }, [])
+
+  useEffect(() => {
+    if (currentUser) {
+      loadProjects(currentUser.id)
+    }
+  }, [currentUser])
 
   const loadCurrentUser = async () => {
     try {
@@ -33,11 +38,11 @@ export default function Products() {
     }
   }
 
-  const loadProjects = async () => {
+  const loadProjects = async (userId: number) => {
     try {
       setLoading(true)
       setError(null)
-      const projects = await getProjects()
+      const projects = await getUserProjects(userId)
       setProducts(projects)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load projects')

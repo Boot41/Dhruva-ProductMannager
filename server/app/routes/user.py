@@ -48,17 +48,25 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
 
 
 
-# Get the current authenticated user
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+bearer_scheme = HTTPBearer()
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    db: Session = Depends(get_db)
+) -> User:
     try:
-        # Validate token signature/exp and load user
+        token = credentials.credentials  # Extract raw token from "Bearer <token>"
         return get_current_user_from_token(token, db)
     except (InvalidTokenError, UserNotFoundError) as e:
-        # Unauthenticated, return 401 Unauthorized
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     except Exception as e:
-        # Generic 500 Internal Server Error fallback
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
+
 
 # Return the authenticated user's profile
 @router.get("/me", response_model=schemas.UserOut)

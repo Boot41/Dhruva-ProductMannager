@@ -229,3 +229,24 @@ class TaskAssignmentRead(BaseModel):
     assigned_by: Optional[int] = None
     eta: Optional[datetime] = None
     created_at: datetime
+
+
+# ---------- UserProject Schemas ----------
+class UserProjectCreate(BaseModel):
+    user_id: int
+    project_id: int
+    role: Optional[str] = "member"
+
+
+class UserProjectUpdate(BaseModel):
+    role: Optional[str] = None
+
+
+class UserProjectRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    project_id: int
+    role: str
+    created_at: datetime

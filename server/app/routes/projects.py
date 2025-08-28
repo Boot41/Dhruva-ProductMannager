@@ -6,7 +6,7 @@ from fastapi import Path
 
 from app import schema as schemas
 from app.core.db import get_db
-from app.models import Project, User
+from app.models import Project, User, UserProject
 from app.routes.user import get_current_user
 from app.useage.auth_service import get_current_user_from_token, InvalidTokenError, UserNotFoundError
 
@@ -100,18 +100,32 @@ def get_project(
 ):
     """Get a specific project by ID"""
     try:
-        # Use current user ID if authenticated, otherwise default to user ID 1
-        owner_id = current_user.id if current_user else 1
-        
-        project = db.query(Project).filter(
-            Project.id == project_id,
-            Project.owner_id == owner_id
-        ).first()
-        
+        project = db.query(Project).filter(Project.id == project_id).first()
+
         if not project:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Project not found"
+            )
+
+        # If there's a current user, check if they are associated with the project
+        if current_user:
+            user_project_association = db.query(UserProject).filter(
+                UserProject.user_id == current_user.id,
+                UserProject.project_id == project_id
+            ).first()
+
+            if not user_project_association and project.owner_id != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to access this project"
+                )
+        else:
+            # If no current user, and project is not public, deny access
+            # For now, assuming projects are private unless explicitly public
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required to access this project"
             )
         
         return project
@@ -120,7 +134,7 @@ def get_project(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch projeACct: {str(e)}"   
+            detail=f"Failed to fetch project: {str(e)}"
         )
 
 @router.put("/{project_id}", response_model=schemas.ProjectRead)

@@ -72,7 +72,7 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-auto">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-[500px] mx-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-[color:var(--color-secondary-900)]">Assign a new task to me</h3>
           <button onClick={onClose} className="text-[color:var(--color-secondary-500)] hover:text-[color:var(--color-secondary-700)]">

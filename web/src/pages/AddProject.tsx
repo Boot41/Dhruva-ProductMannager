@@ -7,6 +7,7 @@ import { createSystemDesign } from '../Api/systemDesign';
 import { getUserProfile } from '../Api/user';
 import UserSearchInput from '../components/UserSearchInput';
 import type { User } from '../Api/auth';
+import { createTaskAssignment } from '../Api/tasks';
 
 export default function AddProject() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function AddProject() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('development');
-  const [lead, setLead] = useState<string | undefined>(undefined);
+  const [lead, setLead] = useState<User | undefined>(undefined);
 
   // Extra context fields (not yet stored by backend schema, collected for future use)
   const [features, setFeatures] = useState('');
@@ -53,7 +54,7 @@ export default function AddProject() {
 
     try {
       setLoading(true);
-      const payload: ProjectCreate = { name, description, status, lead };
+      const payload: ProjectCreate = { name, description, status, lead: lead?.username };
       const project = await createProject(payload);
 
       // Fire-and-forget system design generation/store (non-blocking UX)
@@ -67,6 +68,21 @@ export default function AddProject() {
         }).catch((e) => {
           // Swallow error but surface minimally to console; project creation already succeeded
           console.error('System design generation failed:', e);
+        });
+      }
+
+      console.log('Lead object:', lead);
+      console.log('Project object:', project);
+      // Fire-and-forget task assignment for "Approve Design"
+      if (lead && lead.id) { // Ensure lead is a User object with an ID
+        createTaskAssignment({
+          description: 'Approve Design',
+          user_id: lead.id,
+          project_id: project.id,
+          status: 'todo', // Assuming initial status is 'todo'
+          type: 'design', // Assuming type 'design'
+        }).catch((e) => {
+          console.error('Task assignment failed:', e);
         });
       }
 
@@ -137,14 +153,14 @@ export default function AddProject() {
             {user?.company ? (
               <UserSearchInput
                 companyName={user.company}
-                onSelectUser={(username) => setLead(username)}
+                onSelectUser={(user) => setLead(user)}
               />
             ) : (
               <input
                 type="text"
                 placeholder="Enter lead username"
                 className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
-                onChange={(e) => setLead(e.target.value || undefined)}
+                onChange={(e) => setLead(undefined)} // Set lead to undefined if manually typed
               />
             )}
           </div>

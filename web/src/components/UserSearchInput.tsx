@@ -4,7 +4,7 @@ import type { User } from '../Api/auth';
 
 interface UserSearchInputProps {
   companyName: string;
-  onSelectUser: (username: string) => void;
+  onSelectUser: (user: User) => void;
 }
 
 export default function UserSearchInput({ companyName, onSelectUser }: UserSearchInputProps) {
@@ -31,7 +31,7 @@ export default function UserSearchInput({ companyName, onSelectUser }: UserSearc
 
   const handleSelectUser = (user: User) => {
     setQuery(user.name || user.username);
-    onSelectUser(user.username);
+    onSelectUser(user);
     setShowDropdown(false);
   };
 

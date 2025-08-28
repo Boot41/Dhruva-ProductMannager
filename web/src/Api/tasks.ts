@@ -54,3 +54,10 @@ export async function createTaskAssignment(payload: TaskAssignmentCreate): Promi
     body: JSON.stringify(payload),
   })
 }
+
+export async function updateTaskAssignment(id: number, payload: Partial<TaskAssignmentCreate>): Promise<TaskAssignment> {
+  return makeAuthenticatedRequest(`/task-assignments/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+}

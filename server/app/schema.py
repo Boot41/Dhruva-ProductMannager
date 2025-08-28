@@ -207,6 +207,15 @@ class TaskAssignmentCreate(BaseModel):
     eta: Optional[datetime] = None
 
 
+class TaskAssignmentUpdate(BaseModel):
+    user_id: Optional[int] = None
+    project_id: Optional[int] = None
+    description: Optional[str] = None
+    type: Optional[str] = None
+    status: Optional[str] = None
+    eta: Optional[datetime] = None
+
+
 class TaskAssignmentRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

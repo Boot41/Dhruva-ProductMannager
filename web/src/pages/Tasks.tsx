@@ -62,9 +62,11 @@ export default function Tasks() {
       )}
 
       <div className="grid gap-4">
-        {items.map((t) => (
-          <TaskItem key={t.id} task={t} />
-        ))}
+        {items
+          .filter((t) => t.status !== 'done')
+          .map((t) => (
+            <TaskItem key={t.id} task={t} onTaskUpdated={triggerRefresh} />
+          ))}
       </div>
     </div>
   )

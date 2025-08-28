@@ -6,6 +6,7 @@ import { getProjectUMLs, type ProjectUML, updateProjectUML } from '../Api/projec
 import AddNodeDialog, { type AddNodeData } from '../components/AddNodeDialog'
 import AddRelationshipDialog, { type AddRelationshipData } from '../components/AddRelationshipDialog'
 import ChatBubble from '../components/ChatBubble'
+import { getCurrentUser, type User } from '../Api/auth'
 
 export type UmlNode = {
   id: string | number
@@ -89,6 +90,7 @@ export default function ProjectOverviewLayout() {
   const [addRelOpen, setAddRelOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   // drag state
   const draggingRef = useRef<{
@@ -117,7 +119,17 @@ export default function ProjectOverviewLayout() {
       }
     }
     load()
+    loadCurrentUser()
   }, [projectId])
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    } catch (err) {
+      console.error('Error loading current user:', err)
+    }
+  }
 
   const onPointerDown = (e: React.PointerEvent, id: UmlNode['id']) => {
     const canvas = canvasRef.current
@@ -321,63 +333,67 @@ export default function ProjectOverviewLayout() {
         <p className="text-[color:var(--color-secondary-600)]">Drag and arrange your system components</p>
       </div>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <div className="flex gap-2">
+        {currentUser?.role === 'owner' && (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+              onClick={() => setAddNodeOpen(true)}
+              disabled={!currentUml}
+            >
+              Add Node
+            </button>
+            <button
+              type="button"
+              className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+              onClick={() => setAddRelOpen(true)}
+              disabled={!currentUml || nodes.length < 2}
+            >
+              Add Relationship
+            </button>
+          </div>
+        )}
+        {currentUser?.role === 'owner' && (
           <button
             type="button"
             className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
-            onClick={() => setAddNodeOpen(true)}
-            disabled={!currentUml}
-          >
-            Add Node
-          </button>
-          <button
-            type="button"
-            className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
-            onClick={() => setAddRelOpen(true)}
-            disabled={!currentUml || nodes.length < 2}
-          >
-            Add Relationship
-          </button>
-        </div>
-        <button
-          type="button"
-          className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
-          onClick={async () => {
-            // Save only when disabling move
-            if (moveEnabled) {
-              try {
-                if (!projectId || !currentUml) {
-                  setMoveEnabled((v) => !v)
-                  return
+            onClick={async () => {
+              // Save only when disabling move
+              if (moveEnabled) {
+                try {
+                  if (!projectId || !currentUml) {
+                    setMoveEnabled((v) => !v)
+                    return
+                  }
+                  const updatedSchema = {
+                    nodes: nodes.map(n => ({
+                      id: n.id,
+                      name: n.label ?? n.id,
+                      type: n.type,
+                      description: "",
+                      x: n.x,
+                      y: n.y,
+                      w: n.w,
+                      h: n.h,
+                    })),
+                    relationships
+                  }
+                  await updateProjectUML(currentUml.id, {
+                    project_id: Number(projectId),
+                    type: currentUml.type,
+                    uml_schema: updatedSchema,
+                  })
+                } catch (err) {
+                  console.error('Failed to save UML on button click', err)
                 }
-                const updatedSchema = {
-                  nodes: nodes.map(n => ({
-                    id: n.id,
-                    name: n.label ?? n.id,
-                    type: n.type,
-                    description: "",
-                    x: n.x,
-                    y: n.y,
-                    w: n.w,
-                    h: n.h,
-                  })),
-                  relationships
-                }
-                await updateProjectUML(currentUml.id, {
-                  project_id: Number(projectId),
-                  type: currentUml.type,
-                  uml_schema: updatedSchema,
-                })
-              } catch (err) {
-                console.error('Failed to save UML on button click', err)
               }
-            }
-            setMoveEnabled((v) => !v)
-          }}
-          aria-pressed={moveEnabled}
-        >
-          {moveEnabled ? 'Disable Move' : 'Enable Move'}
-        </button>
+              setMoveEnabled((v) => !v)
+            }}
+            aria-pressed={moveEnabled}
+          >
+            {moveEnabled ? 'Disable Move' : 'Enable Move'}
+          </button>
+        )}
       </div>
       {canvasContent}
 

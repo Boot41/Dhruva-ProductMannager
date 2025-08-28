@@ -134,6 +134,7 @@ This section reformats the raw psql output above into a concise, human-friendly 
 | role            | varchar(50)            |          |
 | company         | varchar(100)           |          |
 | skills          | jsonb                  |          |
+| level           | integer                |          |
 
 - __Primary key__: users_pkey (id)
 - __Unique__: users_email_key (email), users_username_key (username)

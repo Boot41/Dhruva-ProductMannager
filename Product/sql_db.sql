@@ -1,3 +1,7 @@
+-- Add level column to users table
+ALTER TABLE users
+ADD COLUMN level INTEGER DEFAULT 1;
+
 -- Projects table
 CREATE TABLE projects (
     id SERIAL PRIMARY KEY,

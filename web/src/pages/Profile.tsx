@@ -124,6 +124,10 @@ export default function Profile() {
               <label className="block text-sm font-medium text-gray-700">Role</label>
               <p className="mt-1 text-sm text-gray-900">{user.role || 'User'}</p>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Level</label>
+              <p className="mt-1 text-sm text-gray-900">{user.level || 1}</p>
+            </div>
             {user.company && (
               <div>
                 <label className="block text-sm font-medium text-gray-700">Company</label>

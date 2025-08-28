@@ -12,6 +12,7 @@ class UserBase(BaseModel):
     role: Optional[str] = None
     company: Optional[str] = None
     skills: Optional[List[Dict[str, Any]]] = None
+    level: Optional[int] = 1
 
 
 class UserCreate(UserBase):

@@ -40,6 +40,7 @@ class User(Base):
     role = Column(String(50), nullable=True, default="user")
     company = Column(String(100), nullable=True)
     skills = Column(JSONB, nullable=True)
+    level = Column(Integer, nullable=True, default=1)
 
     # Relationship to projects
     projects = relationship(

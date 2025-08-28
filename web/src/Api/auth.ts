@@ -8,6 +8,7 @@ export type User = {
   role?: string | null
   company?: string | null
   skills?: Record<string, any> | null
+  level?: number | null
 }
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000'

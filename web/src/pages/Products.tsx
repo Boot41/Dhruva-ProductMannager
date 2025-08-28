@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import ProductCard from '../components/ProductCard'
 import { getProjects, createProject, type Project, type ProjectCreate } from '../Api/projects'
+import { getCurrentUser, type User } from '../Api/auth'
 import ChatBubble from '../components/ChatBubble'
 
 export default function Products() {
@@ -16,10 +17,21 @@ export default function Products() {
     description: '',
     status: 'development'
   })
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
     loadProjects()
+    loadCurrentUser()
   }, [])
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await getCurrentUser()
+      setCurrentUser(user)
+    } catch (err) {
+      console.error('Error loading current user:', err)
+    }
+  }
 
   const loadProjects = async () => {
     try {
@@ -86,9 +98,11 @@ export default function Products() {
               Manage your project portfolio and track development progress
             </p>
           </div>
-          <Button onClick={() => navigate('/projects/add')}>
-            Create Project
-          </Button>
+          {currentUser?.role === 'owner' && (
+            <Button onClick={() => navigate('/projects/add')}>
+              Create Project
+            </Button>
+          )}
         </div>
 
         {error && (
@@ -180,7 +194,7 @@ export default function Products() {
         ))}
       </div>
 
-      {products.length === 0 && !loading && (
+      {products.length === 0 && !loading && currentUser?.role === 'owner' && (
         <div className="text-center py-12">
           <div className="text-[color:var(--color-secondary-500)] mb-4">
             No projects found

@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import RootLayout from './layout/RootLayout'
 import Landing from './pages/Landing'
 import Products from './pages/Products'
+import Tasks from './pages/Tasks'
 import AddProject from './pages/AddProject'
 import Profile from './pages/Profile'
 import ProjectOverview from './pages/ProjectOverview'
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/projects/:projectId/overview" element={<ProjectOverview />} />
         <Route path="/projects/add" element={<AddProject />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/tasks" element={<Tasks />} />
       </Route>
     </Routes>
   )

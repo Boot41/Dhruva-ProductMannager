@@ -195,3 +195,27 @@ class UmlDesign(BaseModel):
 
 # Ensure forward references (if any) are resolved
 UmlDesign.model_rebuild()
+
+
+# ---------- Task Assignment Schemas ----------
+class TaskAssignmentCreate(BaseModel):
+    user_id: int
+    project_id: int
+    description: Optional[str] = None
+    type: Optional[str] = None
+    status: Optional[str] = None  # validated server-side to allowed values
+    eta: Optional[datetime] = None
+
+
+class TaskAssignmentRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    project_id: int
+    description: Optional[str] = None
+    type: Optional[str] = None
+    status: Optional[str] = None
+    assigned_by: Optional[int] = None
+    eta: Optional[datetime] = None
+    created_at: datetime

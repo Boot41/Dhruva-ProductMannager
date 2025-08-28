@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 
+import { chatWithAgent } from '../Api/chat';
+
 const ChatBubble: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
@@ -10,10 +12,18 @@ const ChatBubble: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (input.trim()) {
-      setMessages([...messages, input]);
+      const userMessage = input;
+      setMessages((prevMessages) => [...prevMessages, `You: ${userMessage}`]);
       setInput('');
+
+      try {
+        const agentResponse = await chatWithAgent(userMessage);
+        setMessages((prevMessages) => [...prevMessages, `AI: ${agentResponse}`]);
+      } catch (error) {
+        setMessages((prevMessages) => [...prevMessages, `AI: Error processing your request.`]);
+      }
     }
   };
 

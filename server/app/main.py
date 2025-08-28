@@ -16,6 +16,7 @@ from app.routes.project_uml import router as project_uml_router
 from app.routes.company import router as company_router
 from app.routes.task_assignments import router as task_assignments_router
 from app.routes.user_project import router as user_project_router
+from app.routes.chat import router as chat_router
 
 
 # Ensure environment variables from .env are loaded at startup
@@ -46,3 +47,4 @@ app.include_router(project_uml_router)
 app.include_router(company_router)
 app.include_router(task_assignments_router)
 app.include_router(user_project_router)
+app.include_router(chat_router)

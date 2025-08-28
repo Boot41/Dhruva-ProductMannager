@@ -5,11 +5,25 @@ try:
     from passlib.context import CryptContext  # type: ignore
 except Exception:  # pragma: no cover - fallback when passlib missing
     CryptContext = None  # type: ignore
+from datetime import datetime, timedelta, timezone
+from typing import Any, Optional
+
+try:
+    from passlib.context import CryptContext  # type: ignore
+except Exception:  # pragma: no cover - fallback when passlib missing
+    CryptContext = None  # type: ignore
 import base64
 import hmac
 import json
 import hashlib
 import secrets
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+
+from app.core.db import get_db
+from app.models import User
 
 from .config import settings
 
@@ -91,3 +105,22 @@ def decode_access_token(token: str) -> dict[str, Any] | None:
             return None
 
     return payload
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    payload = decode_access_token(token)
+    if payload is None:
+        raise credentials_exception
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        raise credentials_exception
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if user is None:
+        raise credentials_exception
+    return user

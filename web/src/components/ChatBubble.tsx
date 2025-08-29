@@ -126,7 +126,7 @@ const ChatBubble: React.FC = () => {
 
       {/* Chat Dialog */}
       {isOpen && (
-        <div className="absolute bottom-20 right-0 w-80 h-96 bg-white rounded-lg shadow-xl flex flex-col">
+        <div className="absolute bottom-20 right-0 w-[534px] h-[650px] bg-white rounded-lg shadow-xl flex flex-col">
           <div className="bg-blue-600 text-white p-3 rounded-t-lg flex justify-between items-center">
             <h3 className="font-semibold">Chat</h3>
             <button onClick={toggleChat} className="text-white text-xl font-bold">

@@ -20,7 +20,7 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
     project_id: number | ''
     type: string
     description: string
-    status: 'todo' | 'in-progress' | 'blocked' | 'done'
+    status: 'todo' | 'in progress' | 'done' | 'assigned' | 'sent for approval' | 'approved'
     eta: string
     assigned_user_id: number | '' // New field for assigned user
   }>({ project_id: '', type: '', description: '', status: 'todo', eta: '', assigned_user_id: '' })
@@ -162,9 +162,11 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
               onChange={(e) => setForm((f) => ({ ...f, status: (e.target as HTMLSelectElement).value as any }))}
               className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
             >
+              <option value="assigned">Assigned</option>
               <option value="todo">Todo</option>
-              <option value="in-progress">In Progress</option>
-              <option value="blocked">Blocked</option>
+              <option value="in progress">In Progress</option>
+              <option value="sent for approval">Sent for Approval</option>
+              <option value="approved">Approved</option>
               <option value="done">Done</option>
             </select>
           </div>

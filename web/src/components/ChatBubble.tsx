@@ -1,11 +1,74 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, type ReactNode } from 'react';
 
 import { chatWithAgent } from '../Api/chat';
+import StatusSlider from './StatusSlider';
+import { listMyTaskAssignments, updateTaskAssignment, type TaskAssignment } from '../Api/tasks';
+
+// Inline component to show and control a task's status inside chat
+function TaskStatusSliderMessage({ taskId }: { taskId: number }) {
+  const STATUSES: TaskAssignment['status'][] = ['assigned', 'todo', 'in progress', 'sent for approval', 'approved', 'done']
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [value, setValue] = useState<number>(0)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const tasks = await listMyTaskAssignments()
+        if (!mounted) return
+        const t = tasks.find((x) => x.id === taskId)
+        if (!t) {
+          setError(`Task ${taskId} not found in your assignments`)
+          setLoading(false)
+          return
+        }
+        const idx = t.status ? Math.max(0, STATUSES.indexOf(t.status)) : 0
+        setValue(idx === -1 ? 0 : idx)
+      } catch (e: any) {
+        setError(e?.message || 'Failed to load task')
+      } finally {
+        setLoading(false)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [taskId])
+
+  const handleChange = async (nextIndex: number) => {
+    setValue(nextIndex)
+    const nextStatus = STATUSES[Math.max(0, Math.min(STATUSES.length - 1, nextIndex))] || 'todo'
+    try {
+      await updateTaskAssignment(taskId, { status: nextStatus })
+    } catch (e) {
+      // revert on error
+      setValue((prev) => prev)
+    }
+  }
+
+  return (
+    <div className="p-2 bg-green-50 rounded-lg border border-green-200">
+      <div className="text-sm text-gray-700 mb-1">AI: Here is the current status for task #{taskId}.</div>
+      {loading && <div className="text-sm text-gray-500">Loading status…</div>}
+      {error && <div className="text-sm text-red-600">{error}</div>}
+      {!loading && !error && (
+        <StatusSlider
+          id={`task-status-${taskId}`}
+          statuses={STATUSES as unknown as string[]}
+          value={value}
+          onChange={handleChange}
+          label={`Task #${taskId} status`}
+        />
+      )}
+    </div>
+  )
+}
 
 const ChatBubble: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<ReactNode[]>([]);
   const [input, setInput] = useState<string>('');
 
   const toggleChat = () => {
@@ -19,6 +82,17 @@ const ChatBubble: React.FC = () => {
       setInput('');
 
       try {
+        // Detect queries like: "what is the status of the task with id 2"
+        const match = userMessage.match(/status\s+of\s+the\s+task\s+with\s+id\s+(\d+)/i) ||
+                      userMessage.match(/status\s+of\s+task\s+#?(\d+)/i) ||
+                      userMessage.match(/task\s+#?(\d+)\s+status/i)
+
+        if (match?.[1]) {
+          const taskId = parseInt(match[1], 10)
+          setMessages((prev) => [...prev, <TaskStatusSliderMessage key={`task-${taskId}-${Date.now()}`} taskId={taskId} />])
+          return
+        }
+
         const agentResponse = await chatWithAgent(userMessage);
         setMessages((prevMessages) => [...prevMessages, `AI: ${agentResponse}`]);
       } catch (error) {

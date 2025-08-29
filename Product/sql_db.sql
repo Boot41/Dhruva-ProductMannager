@@ -38,7 +38,7 @@ CREATE TABLE task_assignments (
     project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     description TEXT,
     type TEXT,
-    status TEXT CHECK (status IN ('todo', 'in-progress', 'blocked', 'done')),
+    status TEXT CHECK (status IN ('assigned', 'todo', 'in progress', 'sent for approval', 'approved', 'done')),
     assigned_by INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
     eta TIMESTAMP WITHOUT TIME ZONE,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now()

@@ -6,7 +6,7 @@ export type TaskAssignment = {
   project_id: number
   description?: string | null
   type?: string | null
-  status?: 'todo' | 'in-progress' | 'blocked' | 'done' | null
+  status?: 'assigned' | 'todo' | 'in progress' | 'sent for approval' | 'approved' | 'done' | null
   assigned_by?: number | null
   eta?: string | null
   created_at: string
@@ -17,7 +17,7 @@ export type TaskAssignmentCreate = {
   project_id: number
   description?: string
   type?: string
-  status?: 'todo' | 'in-progress' | 'blocked' | 'done'
+  status?: 'assigned' | 'todo' | 'in progress' | 'sent for approval' | 'approved' | 'done'
   eta?: string
 }
 

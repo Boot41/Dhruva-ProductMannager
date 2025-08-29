@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { type TaskAssignment, updateTaskAssignment } from '../Api/tasks'
+import StatusSlider from './StatusSlider'
 
 interface TaskItemProps {
   task: TaskAssignment
@@ -6,18 +8,35 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task: t, onTaskUpdated }: TaskItemProps) {
-  const handleMarkAsDone = async () => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const statuses = ['assigned', 'todo', 'in progress', 'sent for approval', 'approved', 'done'] as const
+  const currentStatusIndex = statuses.indexOf((t.status as typeof statuses[number]) || 'todo')
+  const [sliderValue, setSliderValue] = useState(currentStatusIndex === -1 ? 0 : currentStatusIndex)
+
+  // keep local slider in sync when task status changes via refresh
+  useEffect(() => {
+    const idx = statuses.indexOf((t.status as typeof statuses[number]) || 'todo')
+    setSliderValue(idx === -1 ? 0 : idx)
+  }, [t.id, t.status])
+
+  const handleStatusChange = async (index: number) => {
+    const newStatus = statuses[index]
+    setSliderValue(index)
     try {
-      await updateTaskAssignment(t.id, { status: 'done' })
+      await updateTaskAssignment(t.id, { status: newStatus })
       onTaskUpdated()
     } catch (error) {
-      console.error('Failed to mark task as done:', error)
-      alert('Failed to mark task as done. Please try again.')
+      console.error('Failed to update task status:', error)
+      alert('Failed to update task status. Please try again.')
     }
   }
 
   return (
-    <div key={t.id} className="bg-white border border-[color:var(--color-secondary-200)] rounded-md p-4">
+    <div
+      key={t.id}
+      className="bg-white border border-[color:var(--color-secondary-200)] rounded-md p-4 cursor-pointer"
+      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-sm text-[color:var(--color-secondary-500)]">Project #{t.project_id}</div>
@@ -36,16 +55,16 @@ export default function TaskItem({ task: t, onTaskUpdated }: TaskItemProps) {
           {t.eta && (
             <div className="text-xs text-[color:var(--color-secondary-500)]">ETA {new Date(t.eta).toLocaleString()}</div>
           )}
-          {t.status !== 'done' && (
-            <button
-              onClick={handleMarkAsDone}
-              className="mt-2 px-3 py-1 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-            >
-              Mark as Done
-            </button>
-          )}
         </div>
       </div>
+      {isDropdownOpen && (
+        <StatusSlider
+          id={`status-slider-${t.id}`}
+          statuses={statuses}
+          value={sliderValue}
+          onChange={handleStatusChange}
+        />
+      )}
     </div>
   )
 }

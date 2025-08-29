@@ -11,7 +11,7 @@ from app import schema as schemas
 router = APIRouter(prefix="/task-assignments", tags=["tasks"])
 
 
-ALLOWED_STATUS = {"todo", "in-progress", "blocked", "done"}
+ALLOWED_STATUS = {"assigned", "todo", "in progress", "sent for approval", "approved", "done"}
 
 
 @router.post("/", response_model=schemas.TaskAssignmentRead, status_code=status.HTTP_201_CREATED)

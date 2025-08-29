@@ -69,6 +69,9 @@ class Project(Base):
     # Relationship to UMLs
     umls = relationship("ProjectUML", back_populates="project", cascade="all, delete-orphan")
 
+    # Relationship to user_projects
+    user_projects = relationship("UserProject", backref="project_obj", cascade="all, delete-orphan")
+
 
 class ProjectUML(Base):
     __tablename__ = "project_uml"

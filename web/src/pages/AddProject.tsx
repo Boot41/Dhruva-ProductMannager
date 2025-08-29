@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { createProject, type ProjectCreate } from '../Api/projects';
+import { createProject, type ProjectCreate, createUserProject } from '../Api/projects';
 import { createSystemDesign } from '../Api/systemDesign';
 import { getUserProfile } from '../Api/user';
 import UserSearchInput from '../components/UserSearchInput';
@@ -69,6 +69,11 @@ export default function AddProject() {
           // Swallow error but surface minimally to console; project creation already succeeded
           console.error('System design generation failed:', e);
         });
+      }
+
+      // Add lead to project
+      if (lead && lead.id) {
+        await createUserProject(lead.id, project.id, 'lead');
       }
 
       console.log('Lead object:', lead);

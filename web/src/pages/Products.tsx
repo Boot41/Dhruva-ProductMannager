@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import ProductCard from '../components/ProductCard'
-import { getProjects, createProject, type Project, type ProjectCreate, getUserProjects } from '../Api/projects'
+import { getProjects, createProject, type Project, type ProjectCreate, getUserProjects, deleteProject } from '../Api/projects'
 import { getCurrentUser, type User } from '../Api/auth'
 import ChatBubble from '../components/ChatBubble'
 
@@ -76,6 +76,25 @@ export default function Products() {
     // TODO: Implement edit functionality
     console.log('Edit project:', project)
   }
+
+  const handleDeleteProject = async (projectId: number) => {
+    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      console.log('handleDeleteProject called for projectId:', projectId);
+      try {
+        setLoading(true);
+        await deleteProject(projectId);
+        console.log('Project deleted successfully from API. Updating state...');
+        console.log('Products before filter:', products);
+        setProducts(products.filter(project => project.id !== projectId));
+        console.log('Products after filter:', products.filter(project => project.id !== projectId));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to delete project');
+        console.error('Error in handleDeleteProject:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const handleViewDetails = (project: Project) => {
     navigate(`/projects/${project.id}/overview`)
@@ -195,6 +214,7 @@ export default function Products() {
             project={project}
             onEdit={handleEditProject}
             onViewDetails={handleViewDetails}
+            onDelete={() => handleDeleteProject(project.id)}
           />
         ))}
       </div>

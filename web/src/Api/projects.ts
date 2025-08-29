@@ -83,6 +83,13 @@ export async function getUserProjects(userId: number): Promise<Project[]> {
   return Promise.all(projectPromises)
 }
 
+export async function createUserProject(userId: number, projectId: number, role: string): Promise<UserProject> {
+  return makeAuthenticatedRequest('/user-projects/', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId, project_id: projectId, role }),
+  })
+}
+
 // ---------- Project UML API ----------
 export type ProjectUML = {
   id: number
@@ -124,6 +131,24 @@ export async function deleteProject(projectId: number): Promise<void> {
   }
 
   const response = await fetch(`${API_BASE}/projects/${projectId}`, {
+    method: 'DELETE',
+    headers,
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
+  }
+  return
+}
+
+export async function deleteUserProject(userProjectId: number): Promise<void> {
+  const token = getAuthToken()
+  const headers = {
+    ...(token && { Authorization: `Bearer ${token}` }),
+  }
+
+  const response = await fetch(`${API_BASE}/user-projects/${userProjectId}`, {
     method: 'DELETE',
     headers,
   })

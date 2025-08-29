@@ -42,12 +42,15 @@ export default function ProductCard({ project, onEdit, onViewDetails, onDelete }
 
   const handleDelete = async () => {
     if (!confirm(`Are you sure you want to delete "${localProject.name}"?`)) return
+    console.log('Attempting to delete project with ID:', localProject.id);
     try {
       setDeleting(true)
       await deleteProject(localProject.id)
+      console.log('Project deleted successfully on backend.');
       onDelete?.(localProject.id)   // notify parent
     } catch (e: any) {
       setError(e?.message || 'Failed to delete project')
+      console.error('Error deleting project on backend:', e);
     } finally {
       setDeleting(false)
     }

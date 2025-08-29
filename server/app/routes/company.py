@@ -5,7 +5,7 @@ from typing import List
 
 from app import schema as schemas
 from app.core.db import get_db
-from app.models import User
+from app.models.user import User
 
 router = APIRouter(prefix="/company", tags=["company"])
 logger = logging.getLogger(__name__)

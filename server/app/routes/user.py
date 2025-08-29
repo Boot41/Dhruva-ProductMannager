@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 
 from app import schema as schemas
 from app.core.db import get_db
-from app.models import User
+from app.models.user import User
 from app.useage.auth_service import (
     login_user,
     register_user,

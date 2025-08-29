@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from app.agents.chatAgentLLM import chat_with_agent
 from app.core.security import get_current_user
-from app.models import User
+from app.models.user import User
 
 router = APIRouter()
 

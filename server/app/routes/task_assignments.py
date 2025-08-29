@@ -4,7 +4,8 @@ from typing import List
 
 from app.core.db import get_db
 from app.routes.user import get_current_user
-from app.models import TaskAssignment, User
+from app.models.taskassignment import TaskAssignment
+from app.models.user import User
 from app import schema as schemas
 
 

@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.core.db import get_db
 from app import schema as schemas
-from app.models import ProjectUML
+from app.models.projectuml import ProjectUML
 
 router = APIRouter(prefix="/project-uml", tags=["project_uml"]) 
 

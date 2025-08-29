@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.agents.systemDesignLLM import generate_system_design
 from app.schema import SystemDesignRequest, ProjectUMLRead
 from app.core.db import get_db
-from app.models import ProjectUML
+from app.models.projectuml import ProjectUML
 
 router = APIRouter(tags=["system_design"])
 

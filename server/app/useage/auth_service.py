@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app import schema as schemas
 
-from app.models import User
+from app.models.user import User
 from app.core.security import (
     hash_password,
     verify_password,

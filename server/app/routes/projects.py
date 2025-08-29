@@ -6,7 +6,9 @@ from fastapi import Path
 
 from app import schema as schemas
 from app.core.db import get_db
-from app.models import Project, User, UserProject
+from app.models.project import Project
+from app.models.user import User
+from app.models.userproject import UserProject
 from app.routes.user import get_current_user
 from app.useage.auth_service import get_current_user_from_token, InvalidTokenError, UserNotFoundError
 

@@ -12,7 +12,7 @@ from langchain.agents import AgentExecutor, create_tool_calling_agent
 
 from app.core.config import get_settings
 from app.core.db import SessionLocal
-from app.models import TaskAssignment
+from app.models.taskassignment import TaskAssignment
 
 
 SYSTEM_PROMPT = """

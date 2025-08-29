@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.core.db import get_db
-from app.models import UserProject, User, Project
+from app.models.userproject import UserProject
+from app.models.user import User
+from app.models.project import Project
 from app.schema import UserProjectCreate, UserProjectRead, UserProjectUpdate
 from app.routes.user import get_current_user
 

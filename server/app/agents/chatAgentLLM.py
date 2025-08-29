@@ -1,5 +1,5 @@
 import functools
-from typing import Optional
+from typing import Optional, Dict, Any
 import os
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -15,13 +15,18 @@ from app.agents.tasksLLM import create_new_task_tool, get_tasks_for_user_by_stat
 
 SYSTEM_PROMPT = """
 You are a helpful AI assistant. You have access to tools to assist you.
+
+When the user asks for the status of a specific task by ID (e.g., "what is the status of task 21", "give me status of task id 21"), you MUST call the tool `show_task_status` with the extracted integer task_id. Do not invent data; the frontend will render the task UI.
+
+For general task listing or filtering by status, you can use `get_tasks_for_agent`.
+For creating tasks, use `create_task_for_agent`.
 """
 
 def chat_with_agent(
     query: str,
     current_user_id: int,
     chat_history: Optional[list] = None,
-) -> str:
+) -> Dict[str, Any]:
     """
     Engages in a chat with an AI agent that can use tools.
 
@@ -31,7 +36,9 @@ def chat_with_agent(
         chat_history (Optional[list]): A list of previous chat messages (HumanMessage, AIMessage).
 
     Returns:
-        str: The agent's response.
+        Dict[str, Any]: A dict with keys:
+            - output: str (the agent's natural language response)
+            - tool_action: Optional[dict] if a recognized tool was invoked (e.g., {"type": "show_task_status", "task_id": int})
     """
     settings = get_settings()
     api_key = (settings.api_key or os.getenv("API_KEY") or os.getenv("GOOGLE_API_KEY"))
@@ -96,7 +103,22 @@ def chat_with_agent(
             status=status,
         )
 
-    tools = [create_task_for_agent, get_tasks_for_agent] # Register the new tool
+    @tool
+    def show_task_status(task_id: int) -> str:
+        """
+        Use this when the user asks for the status of a specific task by id (e.g., "what is the status of task 21").
+        This tool should be called by the LLM to indicate the frontend should display the task status UI.
+
+        Args:
+            task_id (int): The ID of the task the user referenced.
+
+        Returns:
+            str: A short acknowledgement. The server will capture the tool call and send structured metadata to the client.
+        """
+        # We don't perform DB access here; the frontend will fetch and render the task.
+        return f"Show status for task {task_id} for user {current_user_id}"
+
+    tools = [create_task_for_agent, get_tasks_for_agent, show_task_status] # Register the new tool
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -108,7 +130,8 @@ def chat_with_agent(
     )
 
     agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    # return_intermediate_steps=True lets us inspect tool invocations
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
 
     if chat_history is None:
         chat_history = []
@@ -119,5 +142,30 @@ def chat_with_agent(
             "chat_history": chat_history,
         }
     )
-    return response["output"]
+    output_text = response.get("output", "")
+
+    tool_action: Optional[Dict[str, Any]] = None
+    # Inspect intermediate steps to detect our tool calls
+    steps = response.get("intermediate_steps", [])
+    for action, observation in steps:
+        try:
+            tool_name = getattr(action, "tool", None)
+            tool_input = getattr(action, "tool_input", None)
+            if tool_name == "show_task_status":
+                # tool_input may be int or dict depending on parser; normalize
+                task_id_val = None
+                if isinstance(tool_input, dict):
+                    task_id_val = tool_input.get("task_id")
+                elif isinstance(tool_input, int):
+                    task_id_val = tool_input
+                elif isinstance(tool_input, str) and tool_input.isdigit():
+                    task_id_val = int(tool_input)
+                if task_id_val is not None:
+                    tool_action = {"type": "show_task_status", "task_id": int(task_id_val), "user_id": current_user_id}
+                    break
+        except Exception:
+            # Be resilient to unexpected shapes
+            continue
+
+    return {"output": output_text, "tool_action": tool_action}
 

@@ -12,5 +12,6 @@ class ChatQuery(BaseModel):
 
 @router.post("/chat/agent_query")
 async def agent_query(chat_query: ChatQuery, current_user: User = Depends(get_current_user)):
-    response = chat_with_agent(chat_query.query, current_user.id)
-    return {"response": response}
+    result = chat_with_agent(chat_query.query, current_user.id)
+    # result is a dict with keys: output, tool_action
+    return {"response": result.get("output", ""), "tool_action": result.get("tool_action")}

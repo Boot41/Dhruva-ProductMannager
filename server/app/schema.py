@@ -84,6 +84,13 @@ class MilestonePlanRead(BaseModel):
     created_at: datetime
 
 
+class MilestonePlanUpdate(BaseModel):
+    requirements: Optional[str] = Field(None, description="Product requirements text")
+    tech_stack: Optional[str] = Field(None, description="Selected tech stack (optional)")
+    temperature: Optional[float] = Field(None, ge=0.0, le=1.0)
+    content: Optional[str] = Field(None, description="Generated milestones content (markdown/text)")
+
+
 # ---------- Task Plan Schemas ----------
 class TaskPlanCreate(BaseModel):
     milestones: str = Field(..., description="Milestones content to break into tasks (markdown/text)")
@@ -132,11 +139,6 @@ class SystemDesignRead(BaseModel):
 class ProjectCreate(BaseModel):
     name: str = Field(..., description="Project name")
     description: Optional[str] = Field(None, description="Project description")
-    status: str = Field(default="development", description="Project status")
-    lead: Optional[str] = None
-    features: List[Dict[str, Any]] = Field(default_factory=list, description="List of project features")
-    stack: List[Dict[str, Any]] = Field(default_factory=list, description="List of tech stack items")
-    progress: Dict[str, Any] = Field(default_factory=dict, description="Project progress data")
 
 class ProjectRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -145,12 +147,7 @@ class ProjectRead(BaseModel):
     name: str
     description: Optional[str] = None
     owner_id: Optional[int] = None
-    status: str
     created_at: datetime
-    lead: Optional[int] = None
-    features: List[Dict[str, Any]]
-    stack: List[Dict[str, Any]]
-    progress: Dict[str, Any]
 
 
 # ---------- Project UML Schemas ----------
@@ -171,10 +168,6 @@ class ProjectUMLRead(BaseModel):
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    status: Optional[str] = None
-    features: Optional[List[Dict[str, Any]]] = None
-    stack: Optional[List[Dict[str, Any]]] = None
-    progress: Optional[Dict[str, Any]] = None
 
 class Node(BaseModel):
     h: int
@@ -260,3 +253,37 @@ class UserProjectRead(BaseModel):
     project_id: int
     role: str
     created_at: datetime
+
+class FeatureCreate(BaseModel):
+    project_id: int
+    name: str
+    status: str = "todo"
+
+class FeatureRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    project_id: int
+    name: str
+    status: str
+
+class FeatureUpdate(BaseModel):
+    name: Optional[str] = None
+    status: Optional[str] = None
+
+class TechStackCreate(BaseModel):
+    project_id: int
+    tech: str
+    level: int
+
+class TechStackRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    project_id: int
+    tech: str
+    level: int
+
+class TechStackUpdate(BaseModel):
+    tech: Optional[str] = None
+    level: Optional[int] = None

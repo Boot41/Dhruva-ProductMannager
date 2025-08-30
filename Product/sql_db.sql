@@ -33,7 +33,6 @@ productmannager=# CREATE TABLE project_uml (
 );
 
 CREATE TABLE task_assignments (
-    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     description TEXT,
@@ -55,7 +54,33 @@ CREATE TABLE user_projects (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
-ALTER TABLE projects
-ADD COLUMN features jsonb DEFAULT '[]'::jsonb,
-ADD COLUMN stack jsonb DEFAULT '[]'::jsonb,
-ADD COLUMN progress jsonb DEFAULT '{}'::jsonb;
+CREATE TABLE task_dependencies (
+    task_id INT NOT NULL REFERENCES task_assignments(id) ON DELETE CASCADE,
+    depends_on_task_id INT NOT NULL REFERENCES task_assignments(id) ON DELETE CASCADE,
+    PRIMARY KEY (task_id, depends_on_task_id),
+    CONSTRAINT no_self_dependency CHECK (task_id <> depends_on_task_id)
+);
+
+ALTER TABLE task_assignments
+ADD COLUMN duration_days INT CHECK (duration_days > 0);
+
+CREATE TABLE milestones (
+    id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    done BOOLEAN NOT NULL
+);
+
+CREATE TABLE tech_stack (
+    id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    tech VARCHAR(255) NOT NULL,
+    level INT NOT NULL
+);
+
+CREATE TABLE features (
+    id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    status VARCHAR(50) CHECK (status IN ('todo', 'assigned', 'in-progress', 'done')) NOT NULL
+);

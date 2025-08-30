@@ -21,22 +21,12 @@ export type Project = {
   name: string
   description: string
   owner_id: number
-  status: string
   created_at: string
-  lead?: number
-  features?: Feature[]
-  stack?: StackTech[]
-  progress?: {
-    percent: number
-    milestones: Milestone[]
-  }
 }
 
 export type ProjectCreate = {
   name: string
   description: string
-  status: string
-  lead?: string
 }
 
 export type ProjectUpdate = Partial<Project>

@@ -51,24 +51,6 @@ export default function EditProjectDialog({ open, initial, saving = false, error
               disabled={saving}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-[color:var(--color-secondary-800)] mb-1">Status</label>
-            <select
-              className="w-full rounded border border-[color:var(--color-secondary-300)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={form.status || ''}
-              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-              disabled={saving}
-            >
-              <option value="">Select status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="development">Development</option>
-              <option value="in-progress">In-Progress</option>
-              <option value="completed">Completed</option>
-              <option value="on-hold">On-Hold</option>
-              <option value="paused">Paused</option>
-            </select>
-          </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
@@ -76,7 +58,6 @@ export default function EditProjectDialog({ open, initial, saving = false, error
           <Button variant="primary" onClick={() => onSubmit({
             name: form.name?.trim() || '',
             description: form.description || '',
-            status: form.status || '',
           })} disabled={saving}>
             {saving ? 'Saving...' : 'Save'}
           </Button>

@@ -20,7 +20,6 @@ export default function AddProject() {
   // Project core fields (what backend actually accepts)
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [status, setStatus] = useState('development');
   const [lead, setLead] = useState<User | undefined>(undefined);
 
   // Extra context fields (not yet stored by backend schema, collected for future use)
@@ -54,7 +53,7 @@ export default function AddProject() {
 
     try {
       setLoading(true);
-      const payload: ProjectCreate = { name, description, status, lead: lead?.username };
+      const payload: ProjectCreate = { name, description };
       const project = await createProject(payload);
 
       // Fire-and-forget system design generation/store (non-blocking UX)
@@ -165,7 +164,7 @@ export default function AddProject() {
                 type="text"
                 placeholder="Enter lead username"
                 className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
-                onChange={(e) => setLead(undefined)} // Set lead to undefined if manually typed
+                onChange={() => setLead(undefined)} // Set lead to undefined if manually typed
               />
             )}
           </div>
@@ -222,23 +221,7 @@ export default function AddProject() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-2">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="development">Development</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="completed">Completed</option>
-              <option value="on-hold">On Hold</option>
-              <option value="paused">Paused</option>
-            </select>
-          </div>
+          
 
           <div className="flex gap-3">
             <Button type="submit" disabled={loading}>

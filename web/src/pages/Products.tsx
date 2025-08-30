@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import ProductCard from '../components/ProductCard'
-import { getProjects, createProject, type Project, type ProjectCreate, getUserProjects, deleteProject } from '../Api/projects'
+import { createProject, type Project, type ProjectCreate, getUserProjects, deleteProject } from '../Api/projects'
 import { getCurrentUser, type User } from '../Api/auth'
 import ChatBubble from '../components/ChatBubble'
 
@@ -14,8 +14,7 @@ export default function Products() {
   const [error, setError] = useState<string | null>(null)
   const [newProduct, setNewProduct] = useState({
     name: '',
-    description: '',
-    status: 'development'
+    description: ''
   })
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
@@ -58,12 +57,11 @@ export default function Products() {
         setError(null)
         const projectData: ProjectCreate = {
           name: newProduct.name,
-          description: newProduct.description,
-          status: newProduct.status
+          description: newProduct.description
         }
         const createdProject = await createProject(projectData)
         setProducts([createdProject, ...products])
-        setNewProduct({ name: '', description: '', status: 'development' })
+        setNewProduct({ name: '', description: '' })
         setShowCreateForm(false)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to create project')
@@ -171,23 +169,7 @@ export default function Products() {
                   placeholder="Enter project description"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-2">
-                  Status
-                </label>
-                <select
-                  value={newProduct.status}
-                  onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value })}
-                  className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="development">Development</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="completed">Completed</option>
-                  <option value="on-hold">On Hold</option>
-                  <option value="paused">Paused</option>
-                </select>
-              </div>
+              
               <div className="flex gap-3">
                 <Button onClick={handleCreateProduct}>
                   Create Project
@@ -196,7 +178,7 @@ export default function Products() {
                   variant="secondary" 
                   onClick={() => {
                     setShowCreateForm(false)
-                    setNewProduct({ name: '', description: '', status: 'development' })
+                    setNewProduct({ name: '', description: '' })
                   }}
                 >
                   Cancel

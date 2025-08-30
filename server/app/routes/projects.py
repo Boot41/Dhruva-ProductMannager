@@ -42,26 +42,13 @@ def create_project(
         else:
             owner_id = 1 # Fallback for unauthenticated requests
 
-        lead_id = None
-        if project_data.lead:
-            lead_user = db.query(User).filter(User.username == project_data.lead).first()
-            if not lead_user:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Lead user '{project_data.lead}' not found"
-                )
-            lead_id = lead_user.id
-
         # Create new project
         db_project = Project(
             name=project_data.name,
             description=project_data.description,
-            status=project_data.status,
             owner_id=owner_id,
-            lead=lead_id,
-            features=project_data.features,
-            stack=project_data.stack,
-            progress=project_data.progress
+            
+
         )
         
         db.add(db_project)
@@ -171,14 +158,6 @@ def update_project(
             project.name = project_data.name
         if project_data.description is not None:
             project.description = project_data.description
-        if project_data.status is not None:
-            project.status = project_data.status
-        if project_data.features is not None:
-            project.features = project_data.features
-        if project_data.stack is not None:
-            project.stack = project_data.stack
-        if project_data.progress is not None:
-            project.progress = project_data.progress
 
         db.commit()
         db.refresh(project)

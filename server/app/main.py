@@ -17,6 +17,9 @@ from app.routes.company import router as company_router
 from app.routes.task_assignments import router as task_assignments_router
 from app.routes.user_project import router as user_project_router
 from app.routes.chat import router as chat_router
+from app.routes.project_milestones import router as project_milestones_router
+from app.routes.tech_stack import router as tech_stack_router
+from app.routes.features import router as features_router
 
 
 # Ensure environment variables from .env are loaded at startup
@@ -48,3 +51,6 @@ app.include_router(company_router)
 app.include_router(task_assignments_router)
 app.include_router(user_project_router)
 app.include_router(chat_router)
+app.include_router(project_milestones_router)
+app.include_router(tech_stack_router)
+app.include_router(features_router)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, func, ForeignKey, JSON
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, Integer, Text, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.db import Base
 
@@ -13,12 +12,9 @@ class Project(Base):
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    status = Column(String(50), nullable=False, default="development")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    lead = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    features = Column(JSONB, nullable=False, default=[])
-    stack = Column(JSONB, nullable=False, default=[])
-    progress = Column(JSONB, nullable=False, default={})
+    
+
     # Relationship to user
     owner = relationship(
         "User",

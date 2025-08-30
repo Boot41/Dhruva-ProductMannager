@@ -134,6 +134,9 @@ class ProjectCreate(BaseModel):
     description: Optional[str] = Field(None, description="Project description")
     status: str = Field(default="development", description="Project status")
     lead: Optional[str] = None
+    features: List[Dict[str, Any]] = Field(default_factory=list, description="List of project features")
+    stack: List[Dict[str, Any]] = Field(default_factory=list, description="List of tech stack items")
+    progress: Dict[str, Any] = Field(default_factory=dict, description="Project progress data")
 
 class ProjectRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -144,6 +147,10 @@ class ProjectRead(BaseModel):
     owner_id: Optional[int] = None
     status: str
     created_at: datetime
+    lead: Optional[int] = None
+    features: List[Dict[str, Any]]
+    stack: List[Dict[str, Any]]
+    progress: Dict[str, Any]
 
 
 # ---------- Project UML Schemas ----------
@@ -165,6 +172,9 @@ class ProjectUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None
+    features: Optional[List[Dict[str, Any]]] = None
+    stack: Optional[List[Dict[str, Any]]] = None
+    progress: Optional[Dict[str, Any]] = None
 
 class Node(BaseModel):
     h: int

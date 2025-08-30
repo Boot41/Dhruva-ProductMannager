@@ -7,6 +7,7 @@ import AddNodeDialog, { type AddNodeData } from '../components/AddNodeDialog'
 import AddRelationshipDialog, { type AddRelationshipData } from '../components/AddRelationshipDialog'
 import ChatBubble from '../components/ChatBubble'
 import { getCurrentUser, type User } from '../Api/auth'
+import ProjectFeatures from '../components/ProjectFeatures'
 
 export type UmlNode = {
   id: string | number
@@ -396,6 +397,10 @@ export default function ProjectOverviewLayout() {
         )}
       </div>
       {canvasContent}
+
+      <div className="mt-8">
+        {projectId && <ProjectFeatures projectId={Number(projectId)} />}
+      </div>
 
       <AddNodeDialog
         open={addNodeOpen}

@@ -1,0 +1,34 @@
+{
+    "id": 31,
+    "name": "Amazon clone",
+    "description": "This is a simple clone of Amazon",
+    "owner_id": 1,
+    "created_at": "2025-08-29T12:03:29.960773",
+    "status": "development",
+    "lead": 1,
+    "features": [
+      { "id": 1, "name": "User Authentication", "status": "done" },
+      { "id": 2, "name": "Product Catalog", "status": "in-progress" },
+      { "id": 3, "name": "Shopping Cart", "status": "todo" },
+      { "id": 4, "name": "Checkout & Payments", "status": "todo" },
+      { "id": 5, "name": "Order Tracking", "status": "todo" },
+      { "id": 6, "name": "Admin Dashboard", "status": "todo" }
+    ],
+    "stack": [
+      { "tech": "React", "level": 9 },
+      { "tech": "Node.js", "level": 8 },
+      { "tech": "PostgreSQL", "level": 7 },
+      { "tech": "Express.js", "level": 7 },
+      { "tech": "TailwindCSS", "level": 6 }
+    ],
+    "progress": {
+      "percent": 25,
+      "milestones": [
+        { "name": "Auth & Login", "done": true },
+        { "name": "Product Listing", "done": false },
+        { "name": "Shopping Cart", "done": false },
+        { "name": "Payment Integration", "done": false }
+      ]
+    }
+  }
+  

@@ -54,3 +54,8 @@ CREATE TABLE user_projects (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
+
+ALTER TABLE projects
+ADD COLUMN features jsonb DEFAULT '[]'::jsonb,
+ADD COLUMN stack jsonb DEFAULT '[]'::jsonb,
+ADD COLUMN progress jsonb DEFAULT '{}'::jsonb;

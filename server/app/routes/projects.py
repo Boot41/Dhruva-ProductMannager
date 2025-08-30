@@ -58,7 +58,10 @@ def create_project(
             description=project_data.description,
             status=project_data.status,
             owner_id=owner_id,
-            lead=lead_id
+            lead=lead_id,
+            features=project_data.features,
+            stack=project_data.stack,
+            progress=project_data.progress
         )
         
         db.add(db_project)
@@ -170,6 +173,12 @@ def update_project(
             project.description = project_data.description
         if project_data.status is not None:
             project.status = project_data.status
+        if project_data.features is not None:
+            project.features = project_data.features
+        if project_data.stack is not None:
+            project.stack = project_data.stack
+        if project_data.progress is not None:
+            project.progress = project_data.progress
 
         db.commit()
         db.refresh(project)

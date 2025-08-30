@@ -1,5 +1,21 @@
 import { getAuthToken } from './auth'
 
+export type Milestone = {
+  name: string
+  done: boolean
+}
+
+export type Feature = {
+  id: number
+  name: string
+  status: string
+}
+
+export type StackTech = {
+  tech: string
+  level: number
+}
+
 export type Project = {
   id: number
   name: string
@@ -7,6 +23,13 @@ export type Project = {
   owner_id: number
   status: string
   created_at: string
+  lead?: number
+  features?: Feature[]
+  stack?: StackTech[]
+  progress?: {
+    percent: number
+    milestones: Milestone[]
+  }
 }
 
 export type ProjectCreate = {
@@ -16,7 +39,7 @@ export type ProjectCreate = {
   lead?: string
 }
 
-export type ProjectUpdate = Partial<Pick<Project, 'name' | 'description' | 'status'>>
+export type ProjectUpdate = Partial<Project>
 
 export type UserProject = {
   id: number

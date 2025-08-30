@@ -30,6 +30,15 @@ def get_features_for_project(
     features = db.query(Feature).filter(Feature.project_id == project_id).all()
     return features
 
+@router.get("/milestone/{milestone_id}", response_model=List[schemas.FeatureRead])
+def get_features_for_milestone(
+    milestone_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    features = db.query(Feature).filter(Feature.milestone_id == milestone_id).all()
+    return features
+
 @router.get("/{feature_id}", response_model=schemas.FeatureRead)
 def get_feature(
     feature_id: int,

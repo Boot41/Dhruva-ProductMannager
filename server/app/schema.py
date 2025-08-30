@@ -276,6 +276,7 @@ class FeatureCreate(BaseModel):
     project_id: int
     name: str
     status: str = "todo"
+    milestone_id: Optional[int] = None
 
 class FeatureRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -284,10 +285,12 @@ class FeatureRead(BaseModel):
     project_id: int
     name: str
     status: str
+    milestone_id: Optional[int] = None
 
 class FeatureUpdate(BaseModel):
     name: Optional[str] = None
     status: Optional[str] = None
+    milestone_id: Optional[int] = None
 
 class TechStackCreate(BaseModel):
     project_id: int

@@ -7,7 +7,9 @@ class Feature(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    milestone_id = Column(Integer, ForeignKey("milestones.id", ondelete="SET NULL"), nullable=True)
     name = Column(String(255), nullable=False)
     status = Column(String(50), nullable=False, default="todo")
 
     project = relationship("Project")
+    milestone = relationship("Milestone")

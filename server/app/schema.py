@@ -91,6 +91,24 @@ class MilestonePlanUpdate(BaseModel):
     content: Optional[str] = Field(None, description="Generated milestones content (markdown/text)")
 
 
+# ---------- Milestone Schemas ----------
+class MilestoneCreate(BaseModel):
+    project_id: int
+    name: str
+    done: bool = False
+    progress: int = Field(0, ge=0, le=100)
+
+
+class MilestoneRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    project_id: int
+    name: str
+    done: bool
+    progress: int
+
+
 # ---------- Task Plan Schemas ----------
 class TaskPlanCreate(BaseModel):
     milestones: str = Field(..., description="Milestones content to break into tasks (markdown/text)")

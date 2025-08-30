@@ -9,5 +9,6 @@ class Milestone(Base):
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(255), nullable=False)
     done = Column(Boolean, nullable=False, default=False)
+    progress = Column(Integer, nullable=False, default=0)
 
     project = relationship("Project")

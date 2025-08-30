@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getProject, type Project } from '../Api/projects';
+import MilestonesDisplay from './MilestonesDisplay';
 
 interface ProjectFeaturesProps {
   projectId: number;
@@ -47,9 +48,7 @@ const ProjectFeatures: React.FC<ProjectFeaturesProps> = ({ projectId }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-      <h3 className="text-2xl font-bold text-gray-800 mb-6">Project Milestones</h3>
-
-      <div className="text-gray-600">No milestones available.</div>
+      <MilestonesDisplay projectId={projectId} />
     </div>
   );
 };

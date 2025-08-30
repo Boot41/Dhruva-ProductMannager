@@ -84,3 +84,6 @@ CREATE TABLE features (
     name VARCHAR(255) NOT NULL,
     status VARCHAR(50) CHECK (status IN ('todo', 'assigned', 'in-progress', 'done')) NOT NULL
 );
+
+ALTER TABLE milestones
+ADD COLUMN progress INTEGER DEFAULT 0 CHECK (progress >= 0 AND progress <= 100);

@@ -9,6 +9,7 @@ export type TaskAssignment = {
   status?: 'assigned' | 'todo' | 'in progress' | 'sent for approval' | 'approved' | 'done' | null
   assigned_by?: number | null
   eta?: string | null
+  duration_days?: number | null
   created_at: string
 }
 
@@ -19,6 +20,7 @@ export type TaskAssignmentCreate = {
   type?: string
   status?: 'assigned' | 'todo' | 'in progress' | 'sent for approval' | 'approved' | 'done'
   eta?: string
+  duration_days?: number
 }
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000'

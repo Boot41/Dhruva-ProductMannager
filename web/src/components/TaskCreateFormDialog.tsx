@@ -22,8 +22,9 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
     description: string
     status: 'todo' | 'in progress' | 'done' | 'assigned' | 'sent for approval' | 'approved'
     eta: string
+    duration_days: number | ''
     assigned_user_id: number | '' // New field for assigned user
-  }>({ project_id: '', type: '', description: '', status: 'todo', eta: '', assigned_user_id: '' })
+  }>({ project_id: '', type: 'feature', description: '', status: 'todo', eta: '', assigned_user_id: '' })
 
   const [assignedUser, setAssignedUser] = useState<User | null>(null)
   const [assignedUserSearchQuery, setAssignedUserSearchQuery] = useState<string>('')
@@ -89,9 +90,10 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
         description: form.description || undefined,
         status: form.status,
         eta: form.eta || undefined,
+        duration_days: form.duration_days || undefined,
       }
       await createTaskAssignment(payload)
-      setForm({ project_id: '', type: '', description: '', status: 'todo', eta: '', assigned_user_id: '' })
+      setForm({ project_id: '', type: 'feature', description: '', status: 'todo', eta: '', assigned_user_id: '' })
       setAssignedUser(null) // Clear assigned user
       setAssignedUserSearchQuery('') // Clear search query
       onCreated && onCreated()
@@ -135,13 +137,18 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
 
           <div>
             <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">Type</label>
-            <input
-              type="text"
+            <select
               value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              placeholder="feature, bug, chore..."
               className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
-            />
+            >
+              <option value="feature">Feature</option>
+              <option value="bug">Bug</option>
+              <option value="chore">Chore</option>
+              <option value="refactor">Refactor</option>
+              <option value="documentation">Documentation</option>
+              <option value="research">Research</option>
+            </select>
           </div>
 
           <div className="md:col-span-2">
@@ -178,6 +185,17 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
               value={form.eta}
               onChange={(e) => setForm((f) => ({ ...f, eta: e.target.value }))}
               className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">Duration (days)</label>
+            <input
+              type="number"
+              value={form.duration_days}
+              onChange={(e) => setForm((f) => ({ ...f, duration_days: Number(e.target.value) }))}
+              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+              min="1"
             />
           </div>
 

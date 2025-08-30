@@ -22,6 +22,7 @@ High-level reference for the Product Manager DB. Includes an overview, ER diagra
 | status       | text                 |          | e.g. `todo`, `in-progress`, `done` |
 | assigned_by  | integer              | not null | → users(id) (the assigner)         |
 | eta          | timestamp without tz |          | expected completion                |
+| duration_days| integer              |          |                                    |
 | created_at   | timestamp without tz |          | default now()                      |
 
 
@@ -218,5 +219,6 @@ task_assignments table
 | status       | text                 |          | e.g. `todo`, `in-progress`, `done` |
 | assigned_by  | integer              | not null | → users(id) (the assigner)         |
 | eta          | timestamp without tz |          | expected completion                |
+| duration_days| integer              |          |                                    |
 | created_at   | timestamp without tz |          | default now()                      |
 

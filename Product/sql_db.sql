@@ -40,7 +40,8 @@ CREATE TABLE task_assignments (
     status TEXT CHECK (status IN ('assigned', 'todo', 'in progress', 'sent for approval', 'approved', 'done')),
     assigned_by INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
     eta TIMESTAMP WITHOUT TIME ZONE,
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    duration_days INT CHECK (duration_days > 0)
 );
 
 CREATE TABLE user_projects (
@@ -61,8 +62,7 @@ CREATE TABLE task_dependencies (
     CONSTRAINT no_self_dependency CHECK (task_id <> depends_on_task_id)
 );
 
-ALTER TABLE task_assignments
-ADD COLUMN duration_days INT CHECK (duration_days > 0);
+
 
 CREATE TABLE milestones (
     id SERIAL PRIMARY KEY,

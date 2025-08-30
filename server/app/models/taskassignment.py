@@ -16,6 +16,7 @@ class TaskAssignment(Base):
     status = Column(String(20), nullable=True)  # validated in API layer
     assigned_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     eta = Column(DateTime(timezone=False), nullable=True)
+    duration_days = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Optional relationships for convenience

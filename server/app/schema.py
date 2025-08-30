@@ -227,6 +227,7 @@ class TaskAssignmentCreate(BaseModel):
     type: Optional[str] = None
     status: Optional[str] = None  # validated server-side to allowed values
     eta: Optional[datetime] = None
+    duration_days: Optional[int] = None
 
 
 class TaskAssignmentUpdate(BaseModel):
@@ -236,6 +237,7 @@ class TaskAssignmentUpdate(BaseModel):
     type: Optional[str] = None
     status: Optional[str] = None
     eta: Optional[datetime] = None
+    duration_days: Optional[int] = None
 
 
 class TaskAssignmentRead(BaseModel):
@@ -249,6 +251,7 @@ class TaskAssignmentRead(BaseModel):
     status: Optional[str] = None
     assigned_by: Optional[int] = None
     eta: Optional[datetime] = None
+    duration_days: Optional[int] = None
     created_at: datetime
 
 

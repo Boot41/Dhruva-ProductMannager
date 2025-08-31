@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import type { Milestone } from '../Api/milestones';
+import type { Feature } from '../Api/features'; // Import Feature type
 import MilestoneFeatures from './MilestoneFeatures';
-import AddFeatureDialog from './AddFeatureDialog'; // Import the new dialog component
+import AddFeatureDialog from './AddFeatureDialog';
+import AssignFeatureTaskDialog from './AssignFeatureTaskDialog'; // Import the new dialog
 
 interface MilestoneItemProps {
   milestone: Milestone;
@@ -10,7 +12,9 @@ interface MilestoneItemProps {
 
 const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) => {
   const [showFeatures, setShowFeatures] = useState(false);
-  const [isAddFeatureDialogOpen, setIsAddFeatureDialogOpen] = useState(false); // State for dialog
+  const [isAddFeatureDialogOpen, setIsAddFeatureDialogOpen] = useState(false);
+  const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false); // State for assign task dialog
+  const [featureToAssign, setFeatureToAssign] = useState<Feature | null>(null); // State to hold feature details for assignment
   const progressPercentage = `${milestone.progress}%`;
 
   const handleClick = () => {
@@ -18,20 +22,20 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
   };
 
   const handleAddFeatureClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent milestone item from expanding/collapsing
+    e.stopPropagation();
     setIsAddFeatureDialogOpen(true);
   };
 
-  const handleFeatureAdded = () => {
-    // Logic to refresh features, if necessary.
-    // MilestoneFeatures component already fetches its own data, so a simple re-render might be enough
-    // or we can add a prop to MilestoneFeatures to trigger a re-fetch.
-    // For now, we'll just close the dialog.
+  const handleFeatureAdded = (feature: Feature) => {
     setIsAddFeatureDialogOpen(false);
-    // If MilestoneFeatures needs to be explicitly told to re-fetch,
-    // we'd need to pass a callback or state update down to it.
-    // For simplicity, assuming MilestoneFeatures will re-render with new data if its props change
-    // or if it has its own internal refresh mechanism.
+    setFeatureToAssign(feature);
+    setIsAssignTaskDialogOpen(true);
+  };
+
+  const handleTaskAssigned = () => {
+    setIsAssignTaskDialogOpen(false);
+    setFeatureToAssign(null);
+    // Optionally, trigger a refresh of MilestoneFeatures if needed
   };
 
   return (
@@ -78,6 +82,18 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
         projectId={projectId}
         milestoneId={milestone.id}
       />
+
+      {/* Assign Feature Task Dialog */}
+      {featureToAssign && (
+        <AssignFeatureTaskDialog
+          isOpen={isAssignTaskDialogOpen}
+          onClose={() => setIsAssignTaskDialogOpen(false)}
+          onTaskAssigned={handleTaskAssigned}
+          projectId={projectId}
+          featureId={featureToAssign.id}
+          featureName={featureToAssign.name}
+        />
+      )}
     </li>
   );
 };

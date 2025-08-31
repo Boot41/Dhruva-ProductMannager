@@ -25,9 +25,13 @@ export default function TaskItem({ task: t, onTaskUpdated }: TaskItemProps) {
     try {
       await updateTaskAssignment(t.id, { status: newStatus })
       onTaskUpdated()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update task status:', error)
-      alert('Failed to update task status. Please try again.')
+      if (error.message && error.message.includes('already assigned')) {
+        alert('Task is already assigned.') // Placeholder for snackbar
+      } else {
+        alert('Failed to update task status. Please try again.')
+      }
     }
   }
 
@@ -54,6 +58,17 @@ export default function TaskItem({ task: t, onTaskUpdated }: TaskItemProps) {
           </div>
           {t.eta && (
             <div className="text-xs text-[color:var(--color-secondary-500)]">ETA {new Date(t.eta).toLocaleString()}</div>
+          )}
+          {t.status === 'assigned' && (
+            <button
+              className="mt-2 px-3 py-1 text-xs rounded bg-[color:var(--color-primary-500)] text-white hover:bg-[color:var(--color-primary-600)]"
+              onClick={(e) => {
+                e.stopPropagation() // Prevent opening the dropdown
+                handleStatusChange(statuses.indexOf('todo'))
+              }}
+            >
+              Accept Task
+            </button>
           )}
         </div>
       </div>

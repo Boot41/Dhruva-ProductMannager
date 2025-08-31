@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { createFeature } from '../Api/features'; // Import the API function
+import { createFeature, type Feature } from '../Api/features'; // Import the API function and Feature type
 import type { FeatureCreate } from '../Api/features';
 
 interface AddFeatureDialogProps {
   open: boolean;
   onClose: () => void;
-  onAdd: (featureName: string) => void; // Callback for when a feature is added
+  onAdd: (feature: Feature) => void; // Callback for when a feature is added
   projectId: number;
   milestoneId: number;
 }
@@ -38,8 +38,8 @@ const AddFeatureDialog: React.FC<AddFeatureDialogProps> = ({
         name: featureName,
         status: 'todo', // Default status
       };
-      await createFeature(newFeature);
-      onAdd(featureName); // Notify parent component
+      const result = await createFeature(newFeature);
+      onAdd(result); // Notify parent component with the full feature object
       setFeatureName('');
       onClose();
     } catch (err) {

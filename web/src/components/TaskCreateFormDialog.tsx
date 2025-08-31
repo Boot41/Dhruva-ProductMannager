@@ -3,6 +3,8 @@ import { createTaskAssignment, type TaskAssignmentCreate } from '../Api/tasks'
 import { getCurrentUser, type User } from '../Api/auth'
 import { getUserProjects, type Project } from '../Api/projects'
 import { searchEmployees } from '../Api/user' // Import searchEmployees
+import { getProjectMilestones, type Milestone } from '../Api/milestones' // Import getProjectMilestones and Milestone type
+import { getFeaturesByMilestoneId, type Feature } from '../Api/features' // Import getFeaturesByMilestoneId and Feature type
 import Button from './Button'
 
 interface TaskCreateFormDialogProps {
@@ -14,6 +16,10 @@ interface TaskCreateFormDialogProps {
 export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: TaskCreateFormDialogProps) {
   const [me, setMe] = useState<User | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
+  const [milestones, setMilestones] = useState<Milestone[]>([]) // New state for milestones
+  const [selectedMilestone, setSelectedMilestone] = useState<number | ''>('') // New state for selected milestone
+  const [features, setFeatures] = useState<Feature[]>([]) // New state for features
+  const [selectedFeature, setSelectedFeature] = useState<number | ''>('') // New state for selected feature
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<{
@@ -24,7 +30,7 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
     eta: string
     duration_days: number | ''
     assigned_user_id: number | '' // New field for assigned user
-  }>({ project_id: '', type: 'feature', description: '', status: 'todo', eta: '', assigned_user_id: '' })
+  }>({ project_id: '', type: 'feature', description: '', status: 'todo', eta: '', duration_days: '', assigned_user_id: '' })
 
   const [assignedUser, setAssignedUser] = useState<User | null>(null)
   const [assignedUserSearchQuery, setAssignedUserSearchQuery] = useState<string>('')
@@ -91,9 +97,11 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
         status: form.status,
         eta: form.eta || undefined,
         duration_days: form.duration_days || undefined,
+        feature_id: selectedFeature || 0
       }
       await createTaskAssignment(payload)
-      setForm({ project_id: '', type: 'feature', description: '', status: 'todo', eta: '', assigned_user_id: '' })
+      setForm({ project_id: '', type: 'feature', description: '', status: 'todo', eta: '', duration_days: '', assigned_user_id: '' })
+    
       setAssignedUser(null) // Clear assigned user
       setAssignedUserSearchQuery('') // Clear search query
       onCreated && onCreated()
@@ -124,7 +132,22 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
             <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">Project</label>
             <select
               value={form.project_id}
-              onChange={(e) => setForm((f) => ({ ...f, project_id: (e.target as HTMLSelectElement).value ? Number((e.target as HTMLSelectElement).value) : '' }))}
+              onChange={async (e) => {
+                const projectId = (e.target as HTMLSelectElement).value ? Number((e.target as HTMLSelectElement).value) : ''
+                setForm((f) => ({ ...f, project_id: projectId }))
+                setSelectedMilestone('') // Reset selected milestone when project changes
+                if (projectId) {
+                  try {
+                    const projectMilestones = await getProjectMilestones(projectId as number)
+                    setMilestones(projectMilestones)
+                  } catch (err) {
+                    console.error('Failed to fetch milestones:', err)
+                    setMilestones([])
+                  }
+                } else {
+                  setMilestones([])
+                }
+              }}
               className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
               required
             >
@@ -148,6 +171,51 @@ export default function TaskCreateFormDialog({ isOpen, onClose, onCreated }: Tas
               <option value="refactor">Refactor</option>
               <option value="documentation">Documentation</option>
               <option value="research">Research</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">Milestone</label>
+            <select
+              value={selectedMilestone}
+              onChange={async (e) => {
+                const milestoneId = (e.target as HTMLSelectElement).value ? Number((e.target as HTMLSelectElement).value) : ''
+                setSelectedMilestone(milestoneId)
+                setSelectedFeature('') // Reset selected feature when milestone changes
+                if (milestoneId) {
+                  try {
+                    const milestoneFeatures = await getFeaturesByMilestoneId(milestoneId as number)
+                    setFeatures(milestoneFeatures)
+                  } catch (err) {
+                    console.error('Failed to fetch features:', err)
+                    setFeatures([])
+                  }
+                } else {
+                  setFeatures([])
+                }
+              }}
+              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+              disabled={milestones.length === 0}
+            >
+              <option value="">Select a milestone</option>
+              {milestones.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">Feature</label>
+            <select
+              value={selectedFeature}
+              onChange={(e) => setSelectedFeature(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+              disabled={features.length === 0}
+            >
+              <option value="">Select a feature</option>
+              {features.map((f) => (
+                <option key={f.id} value={f.id}>{f.name}</option>
+              ))}
             </select>
           </div>
 

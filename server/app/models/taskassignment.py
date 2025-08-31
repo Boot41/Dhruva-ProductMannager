@@ -18,8 +18,10 @@ class TaskAssignment(Base):
     eta = Column(DateTime(timezone=False), nullable=True)
     duration_days = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    feature_id = Column(Integer, ForeignKey("features.id", ondelete="CASCADE"), nullable=False)
 
     # Optional relationships for convenience
     assignee = relationship("User", foreign_keys=[user_id])
     assigner = relationship("User", foreign_keys=[assigned_by])
+    feature = relationship("Feature")
     project = relationship("Project")

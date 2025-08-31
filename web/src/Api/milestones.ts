@@ -47,3 +47,7 @@ export async function createMilestone(milestoneData: MilestoneCreatePayload): Pr
 export async function getMilestonesByProjectId(projectId: number): Promise<Milestone[]> {
   return makeAuthenticatedRequest(`/milestones/project/${projectId}`);
 }
+
+export async function getProjectMilestones(projectId: number): Promise<Milestone[]> {
+  return makeAuthenticatedRequest(`/milestones/project/${projectId}`);
+}

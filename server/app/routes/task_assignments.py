@@ -33,6 +33,8 @@ def create_task_assignment(
             status=payload.status,
             assigned_by=current_user.id,
             eta=payload.eta,
+            duration_days=payload.duration_days,
+            feature_id=payload.feature_id,
         )
         db.add(task)
         db.commit()

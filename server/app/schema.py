@@ -228,6 +228,7 @@ class TaskAssignmentCreate(BaseModel):
     status: Optional[str] = None  # validated server-side to allowed values
     eta: Optional[datetime] = None
     duration_days: Optional[int] = None
+    feature_id: int
 
 
 class TaskAssignmentUpdate(BaseModel):
@@ -238,6 +239,7 @@ class TaskAssignmentUpdate(BaseModel):
     status: Optional[str] = None
     eta: Optional[datetime] = None
     duration_days: Optional[int] = None
+    feature_id  : Optional[int] = None
 
 
 class TaskAssignmentRead(BaseModel):
@@ -253,6 +255,7 @@ class TaskAssignmentRead(BaseModel):
     eta: Optional[datetime] = None
     duration_days: Optional[int] = None
     created_at: datetime
+    feature_id: int
 
 
 # ---------- UserProject Schemas ----------

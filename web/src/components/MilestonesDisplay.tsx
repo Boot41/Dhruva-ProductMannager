@@ -63,7 +63,7 @@ const MilestonesDisplay: React.FC<MilestonesDisplayProps> = ({ projectId }) => {
         <h3 className="text-2xl font-bold text-gray-800">Project Milestones</h3>
         <button
           type="button"
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="btn btn-primary btn-sm"
           onClick={() => setIsAddMilestoneDialogOpen(true)}
         >
           Add Milestone
@@ -75,7 +75,7 @@ const MilestonesDisplay: React.FC<MilestonesDisplayProps> = ({ projectId }) => {
       ) : (
         <ul className="space-y-2">
           {milestones.map((milestone) => (
-            <MilestoneItem key={milestone.id} milestone={milestone} />
+            <MilestoneItem key={milestone.id} milestone={milestone} projectId={projectId} />
           ))}
         </ul>
       )}

@@ -184,6 +184,18 @@ export default function ProjectOverviewLayout() {
     }
   }
   
+  const handleDeleteNode = async () => {
+    if (!selectedId) return
+
+    const nextNodes = nodes.filter(n => n.id !== selectedId)
+    const nextRelationships = relationships.filter(r => r.source !== selectedId && r.to !== selectedId)
+
+    setNodes(nextNodes)
+    setRelationships(nextRelationships)
+    setSelectedId(null) // Deselect the node after deletion
+    await persistSchema(nextNodes, nextRelationships)
+  }
+
   const persistSchema = async (nextNodes: UmlNode[], nextRelationships: UmlRelationship[]) => {
     if (!projectId || !currentUml) return
     const updatedSchema = {
@@ -338,7 +350,7 @@ export default function ProjectOverviewLayout() {
           <div className="flex gap-2">
             <button
               type="button"
-              className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+              className="btn btn-outline btn-sm"
               onClick={() => setAddNodeOpen(true)}
               disabled={!currentUml}
             >
@@ -346,18 +358,27 @@ export default function ProjectOverviewLayout() {
             </button>
             <button
               type="button"
-              className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+              className="btn btn-outline btn-sm"
               onClick={() => setAddRelOpen(true)}
               disabled={!currentUml || nodes.length < 2}
             >
               Add Relationship
             </button>
+            {selectedId && (
+              <button
+                type="button"
+                className="btn px-3 py-1.5 text-sm rounded border border-red-300 text-red-800 hover:bg-red-50"
+                onClick={handleDeleteNode}
+              >
+                Delete Selected Node
+              </button>
+            )}
           </div>
         )}
         {currentUser?.role === 'owner' && (
           <button
             type="button"
-            className="px-3 py-1.5 text-sm rounded border border-[color:var(--color-secondary-300)] text-[color:var(--color-secondary-800)] hover:bg-[color:var(--color-secondary-50)]"
+            className="btn btn-outline btn-sm"
             onClick={async () => {
               // Save only when disabling move
               if (moveEnabled) {

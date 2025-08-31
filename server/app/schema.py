@@ -288,12 +288,12 @@ class FeatureRead(BaseModel):
     project_id: int
     name: str
     status: str
-    milestone_id: Optional[int] = None
+    milestone_id: int
 
 class FeatureUpdate(BaseModel):
     name: Optional[str] = None
     status: Optional[str] = None
-    milestone_id: Optional[int] = None
+    milestone_id: int
 
 class TechStackCreate(BaseModel):
     project_id: int

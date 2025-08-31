@@ -31,6 +31,20 @@ export type Feature = {
   status: string;
 };
 
+export type FeatureCreate = {
+  project_id: number;
+  milestone_id: number | null;
+  name: string;
+  status?: string;
+};
+
+export async function createFeature(featureData: FeatureCreate): Promise<Feature> {
+  return makeAuthenticatedRequest('/features/', {
+    method: 'POST',
+    body: JSON.stringify(featureData),
+  });
+}
+
 export async function getFeaturesByMilestoneId(milestoneId: number): Promise<Feature[]> {
   return makeAuthenticatedRequest(`/features/milestone/${milestoneId}`);
 }

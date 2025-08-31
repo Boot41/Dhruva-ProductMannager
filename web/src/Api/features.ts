@@ -20,6 +20,10 @@ async function makeAuthenticatedRequest(url: string, options: RequestInit = {}) 
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
   }
 
+  if (response.status === 204) {
+    return; // No content for 204 No Content
+  }
+
   return response.json();
 }
 
@@ -49,4 +53,10 @@ export async function createFeature(featureData: FeatureCreate): Promise<Feature
 
 export async function getFeaturesByMilestoneId(milestoneId: number): Promise<Feature[]> {
   return makeAuthenticatedRequest(`/features/milestone/${milestoneId}`);
+}
+
+export async function deleteFeature(featureId: number): Promise<void> {
+  return makeAuthenticatedRequest(`/features/${featureId}`, {
+    method: 'DELETE',
+  });
 }

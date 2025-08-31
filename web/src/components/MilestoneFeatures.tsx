@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getFeaturesByMilestoneId, type Feature } from '../Api/features';
+import { getFeaturesByMilestoneId, type Feature, deleteFeature } from '../Api/features';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBug, faWrench, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBug, faWrench, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import AssignFeatureTaskDialog from './AssignFeatureTaskDialog'; // Import the dialog
 
 interface MilestoneFeaturesProps {
@@ -46,6 +46,18 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, proj
     // Optionally, re-fetch features to update the list if needed
   };
 
+  const handleDeleteFeature = async (featureId: number, featureName: string) => {
+    if (window.confirm(`Are you sure you want to delete the feature "${featureName}"?`)) {
+      try {
+        await deleteFeature(featureId);
+        setFeatures(features.filter(feature => feature.id !== featureId));
+      } catch (err) {
+        setError('Failed to delete feature.');
+        console.error(err);
+      }
+    }
+  };
+
   if (loading) {
     return <div className="text-gray-600">Loading features...</div>;
   }
@@ -61,16 +73,17 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, proj
   return (
     <div className="mt-2 p-2 border-t border-gray-200">
       <h4 className="text-md font-semibold mb-2">Mapped Features:</h4>
-      <div className="grid grid-cols-6 gap-4 text-sm font-semibold mb-2">
+      <div className="grid grid-cols-7 gap-4 text-sm font-semibold mb-2">
         <div>Feature Name</div>
         <div>Assigned To</div>
         <div>ETA</div>
         <div>Dependent On</div>
         <div>Status</div>
         <div>Type</div>
+        <div>Actions</div>
       </div>
       {features.map((feature) => (
-        <div key={feature.id} className="grid grid-cols-6 gap-4 text-sm py-1 border-b border-gray-100 items-center">
+        <div key={feature.id} className="grid grid-cols-7 gap-4 text-sm py-1 border-b border-gray-100 items-center">
           <div className="text-gray-700">{feature.name}</div>
           <div className="text-gray-600">{feature.assigned_to?.name || 'Unassigned'}</div>
           <div className="text-gray-600">{feature.eta ? new Date(feature.eta).toLocaleDateString() : 'No ETA'}</div>
@@ -91,6 +104,7 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, proj
             <button onClick={() => handleAssignTaskClick(feature, 'bug')} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faBug} title="Create Bug Task" /></button>
             <button onClick={() => handleAssignTaskClick(feature, 'refactor')} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faWrench} title="Create Refactor Task" /></button>
             <button onClick={() => handleAssignTaskClick(feature, 'research')} className="text-green-500 hover:text-green-700"><FontAwesomeIcon icon={faSearch} title="Create Research Task" /></button>
+            <button onClick={() => handleDeleteFeature(feature.id, feature.name)} className="text-gray-500 hover:text-gray-700"><FontAwesomeIcon icon={faTrash} title="Delete Feature" /></button>
           </div>
         </div>
       ))}

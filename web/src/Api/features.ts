@@ -29,6 +29,8 @@ export type Feature = {
   milestone_id: number | null;
   name: string;
   status: string;
+  assigned_to?: { id: number; name: string };
+  eta?: string;
 };
 
 export type FeatureCreate = {

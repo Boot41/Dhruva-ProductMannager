@@ -11,6 +11,7 @@ interface AssignFeatureTaskDialogProps {
   projectId: number;
   featureId: number;
   featureName: string; // To display in the dialog
+  taskType: 'bug' | 'refactor' | 'research' | 'feature'; // New prop for task type
 }
 
 export default function AssignFeatureTaskDialog({
@@ -20,10 +21,13 @@ export default function AssignFeatureTaskDialog({
   projectId,
   featureId,
   featureName,
+  taskType,
 }: AssignFeatureTaskDialogProps) {
   const [me, setMe] = useState<User | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [eta, setEta] = useState<string>('');
+  const [description, setDescription] = useState<string>(''); // New state for description
 
   const [assignedUser, setAssignedUser] = useState<User | null>(null);
   const [assignedUserSearchQuery, setAssignedUserSearchQuery] = useState<string>('');
@@ -75,8 +79,8 @@ export default function AssignFeatureTaskDialog({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!me || !assignedUser) {
-      setError('Please select a user to assign the task.');
+    if (!me || !assignedUser || !description || !eta) {
+      setError('Please select a user, provide a description, and set an ETA.');
       return;
     }
 
@@ -86,15 +90,18 @@ export default function AssignFeatureTaskDialog({
       const payload: TaskAssignmentCreate = {
         user_id: assignedUser.id,
         project_id: projectId,
-        type: 'feature', // Always 'feature' for this dialog
-        description: `Implement feature: ${featureName}`, // Default description
+        type: taskType, // Use the new taskType prop
+        description: description, // Use the description from state
         status: 'assigned', // Default status
         feature_id: featureId,
+        eta: eta, // ETA is now required
       };
       await createTaskAssignment(payload);
 
       setAssignedUser(null);
       setAssignedUserSearchQuery('');
+      setDescription(''); // Clear description after submission
+      setEta(''); // Clear ETA after submission
       onTaskAssigned && onTaskAssigned();
       onClose();
     } catch (err) {
@@ -106,12 +113,14 @@ export default function AssignFeatureTaskDialog({
 
   if (!isOpen) return null;
 
+  const dialogTitle = `Assign ${taskType.charAt(0).toUpperCase() + taskType.slice(1)} Task for Feature: ${featureName}`;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-[500px] mx-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-[color:var(--color-secondary-900)]">
-            Assign Task for Feature: {featureName}
+            {dialogTitle}
           </h3>
           <button
             onClick={onClose}
@@ -167,7 +176,35 @@ export default function AssignFeatureTaskDialog({
           </div>
 
           <div>
-            <Button type="submit" disabled={submitting || !assignedUser}>
+            <label htmlFor="description" className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+              rows={3}
+              required
+            ></textarea>
+          </div>
+
+          <div>
+            <label htmlFor="eta" className="block text-sm font-medium text-[color:var(--color-secondary-700)] mb-1">
+              ETA (e.g., "2025-12-31") <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              id="eta"
+              value={eta}
+              onChange={(e) => setEta(e.target.value)}
+              className="w-full px-3 py-2 border border-[color:var(--color-secondary-300)] rounded-md"
+              required
+            />
+          </div>
+
+          <div>
+            <Button type="submit" disabled={submitting || !assignedUser || !description || !eta}>
               {submitting ? 'Assigning...' : 'Assign Task'}
             </Button>
           </div>

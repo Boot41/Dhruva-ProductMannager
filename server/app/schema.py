@@ -284,6 +284,11 @@ class FeatureCreate(BaseModel):
     status: str = "todo"
     milestone_id: Optional[int] = None
 
+class AssignedUser(BaseModel):
+    id: int
+    name: str
+    model_config = ConfigDict(from_attributes=True)
+
 class FeatureRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -292,6 +297,8 @@ class FeatureRead(BaseModel):
     name: str
     status: str
     milestone_id: int
+    assigned_to: Optional[AssignedUser] = None
+    eta: Optional[datetime] = None
 
 class FeatureUpdate(BaseModel):
     name: Optional[str] = None

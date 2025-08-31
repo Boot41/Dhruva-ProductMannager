@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { getFeaturesByMilestoneId, type Feature } from '../Api/features';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBug, faWrench, faSearch } from '@fortawesome/free-solid-svg-icons';
+import AssignFeatureTaskDialog from './AssignFeatureTaskDialog'; // Import the dialog
 
 interface MilestoneFeaturesProps {
   milestoneId: number;
+  projectId: number; // Add projectId to props
 }
 
-const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId }) => {
+const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, projectId }) => {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false);
+  const [featureToAssign, setFeatureToAssign] = useState<Feature | null>(null);
+  const [taskTypeToAssign, setTaskTypeToAssign] = useState<'bug' | 'refactor' | 'research' | 'feature'>('feature');
 
   useEffect(() => {
     const fetchFeatures = async () => {
@@ -27,6 +34,18 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId }) =>
     fetchFeatures();
   }, [milestoneId]);
 
+  const handleAssignTaskClick = (feature: Feature, type: 'bug' | 'refactor' | 'research') => {
+    setFeatureToAssign(feature);
+    setTaskTypeToAssign(type);
+    setIsAssignTaskDialogOpen(true);
+  };
+
+  const handleTaskAssigned = () => {
+    setIsAssignTaskDialogOpen(false);
+    setFeatureToAssign(null);
+    // Optionally, re-fetch features to update the list if needed
+  };
+
   if (loading) {
     return <div className="text-gray-600">Loading features...</div>;
   }
@@ -42,18 +61,19 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId }) =>
   return (
     <div className="mt-2 p-2 border-t border-gray-200">
       <h4 className="text-md font-semibold mb-2">Mapped Features:</h4>
-      <div className="grid grid-cols-5 gap-4 text-sm font-semibold mb-2">
+      <div className="grid grid-cols-6 gap-4 text-sm font-semibold mb-2">
         <div>Feature Name</div>
         <div>Assigned To</div>
         <div>ETA</div>
         <div>Dependent On</div>
         <div>Status</div>
+        <div>Type</div>
       </div>
       {features.map((feature) => (
-        <div key={feature.id} className="grid grid-cols-5 gap-4 text-sm py-1 border-b border-gray-100 items-center">
+        <div key={feature.id} className="grid grid-cols-6 gap-4 text-sm py-1 border-b border-gray-100 items-center">
           <div className="text-gray-700">{feature.name}</div>
-          <div className="text-gray-600">Placeholder User</div>
-          <div className="text-gray-600">2025-12-31</div>
+          <div className="text-gray-600">{feature.assigned_to?.name || 'Unassigned'}</div>
+          <div className="text-gray-600">{feature.eta ? new Date(feature.eta).toLocaleDateString() : 'No ETA'}</div>
           <div className="text-gray-600">None</div>
           <div className="text-gray-600">
             <select
@@ -67,8 +87,25 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId }) =>
               <option value="Blocked">Blocked</option>
             </select>
           </div>
+          <div className="flex items-center space-x-2">
+            <button onClick={() => handleAssignTaskClick(feature, 'bug')} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faBug} title="Create Bug Task" /></button>
+            <button onClick={() => handleAssignTaskClick(feature, 'refactor')} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faWrench} title="Create Refactor Task" /></button>
+            <button onClick={() => handleAssignTaskClick(feature, 'research')} className="text-green-500 hover:text-green-700"><FontAwesomeIcon icon={faSearch} title="Create Research Task" /></button>
+          </div>
         </div>
       ))}
+
+      {featureToAssign && (
+        <AssignFeatureTaskDialog
+          isOpen={isAssignTaskDialogOpen}
+          onClose={() => setIsAssignTaskDialogOpen(false)}
+          onTaskAssigned={handleTaskAssigned}
+          projectId={projectId}
+          featureId={featureToAssign.id}
+          featureName={featureToAssign.name}
+          taskType={taskTypeToAssign}
+        />
+      )}
     </div>
   );
 };

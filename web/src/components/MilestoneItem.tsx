@@ -70,7 +70,7 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
       {/* Features only show when expanded */}
       {showFeatures && (
         <div className="mt-2">
-          <MilestoneFeatures milestoneId={milestone.id} />
+          <MilestoneFeatures milestoneId={milestone.id} projectId={projectId} />
         </div>
       )}
 

@@ -13,3 +13,4 @@ class Feature(Base):
 
     project = relationship("Project")
     milestone = relationship("Milestone")
+    task_assignments = relationship("TaskAssignment", back_populates="feature")

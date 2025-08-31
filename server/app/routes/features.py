@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List
+from sqlalchemy.orm import Session, joinedload
+from typing import List, Optional
+from datetime import datetime
 
 from app import schema as schemas
 from app.core.db import get_db
 from app.models.feature import Feature
+from app.models.taskassignment import TaskAssignment
+from app.models.user import User
 from app.routes.user import get_current_user
 
 router = APIRouter(prefix="/features", tags=["features"])
@@ -36,8 +39,43 @@ def get_features_for_milestone(
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    features = db.query(Feature).filter(Feature.milestone_id == milestone_id).all()
-    return features
+    features_with_assignments = (
+        db.query(Feature)
+        .filter(Feature.milestone_id == milestone_id)
+        .options(joinedload(Feature.task_assignments).joinedload(TaskAssignment.assignee))
+        .all()
+    )
+
+    result_features = []
+    for feature in features_with_assignments:
+        assigned_to_data: Optional[schemas.AssignedUser] = None
+        eta_data: Optional[datetime] = None
+
+        if feature.task_assignments:
+            # Assuming a feature can have multiple task assignments,
+            # we'll take the first one for assigned_to and eta for simplicity.
+            # If more complex logic is needed (e.g., latest assignment, primary assignment),
+            # that would require further clarification.
+            task_assignment = feature.task_assignments[0]
+            if task_assignment.assignee:
+                assigned_to_data = schemas.AssignedUser(
+                    id=task_assignment.assignee.id,
+                    name=task_assignment.assignee.name
+                )
+            eta_data = task_assignment.eta
+
+        result_features.append(
+            schemas.FeatureRead(
+                id=feature.id,
+                project_id=feature.project_id,
+                name=feature.name,
+                status=feature.status,
+                milestone_id=feature.milestone_id,
+                assigned_to=assigned_to_data,
+                eta=eta_data
+            )
+        )
+    return result_features
 
 @router.get("/{feature_id}", response_model=schemas.FeatureRead)
 def get_feature(

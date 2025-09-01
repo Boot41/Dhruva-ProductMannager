@@ -79,7 +79,7 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, proj
         <div>ETA</div>
         <div>Dependent On</div>
         <div>Status</div>
-        <div>Type</div>
+        <div>Assign</div>
         <div>Actions</div>
       </div>
       {features.map((feature) => (
@@ -104,6 +104,8 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, proj
             <button onClick={() => handleAssignTaskClick(feature, 'bug')} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faBug} title="Create Bug Task" /></button>
             <button onClick={() => handleAssignTaskClick(feature, 'refactor')} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faWrench} title="Create Refactor Task" /></button>
             <button onClick={() => handleAssignTaskClick(feature, 'research')} className="text-green-500 hover:text-green-700"><FontAwesomeIcon icon={faSearch} title="Create Research Task" /></button>
+          </div>
+          <div className="flex items-center">
             <button onClick={() => handleDeleteFeature(feature.id, feature.name)} className="text-gray-500 hover:text-gray-700"><FontAwesomeIcon icon={faTrash} title="Delete Feature" /></button>
           </div>
         </div>

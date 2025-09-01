@@ -91,7 +91,7 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
           onTaskAssigned={handleTaskAssigned}
           projectId={projectId}
           featureId={featureToAssign.id}
-          featureName={featureToAssign.name} taskType={'bug'}        />
+          featureName={featureToAssign.name} taskType={'feature'}        />
       )}
     </li>
   );

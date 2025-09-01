@@ -14,12 +14,26 @@ from app.models.milestone import Milestone
 from app.models.tech_stack import TechStack
 from app.routes.user import get_current_user
 from app.agents.backEndLLM import get_feature_dependencies, DependencyAnalysisOutput
+from app.agents.featureBreakdownLLM import breakdown_feature, FeatureBreakdown
 
 router = APIRouter(prefix="/features", tags=["features"])
 
 class DependencyAnalysisRequest(BaseModel):
     project_id: int
     new_feature_description: str = Field(alias="new_feature")
+
+class FeatureBreakdownRequest(BaseModel):
+    feature_description: str
+
+@router.post("/breakdown", response_model=FeatureBreakdown)
+async def get_feature_breakdown_endpoint(
+    request: FeatureBreakdownRequest,
+):
+    try:
+        breakdown = breakdown_feature(request.feature_description)
+        return breakdown
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @router.post("/", response_model=schemas.FeatureRead, status_code=status.HTTP_201_CREATED)
 def create_feature(

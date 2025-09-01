@@ -15,6 +15,7 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
   const [isAddFeatureDialogOpen, setIsAddFeatureDialogOpen] = useState(false);
   const [isAssignTaskDialogOpen, setIsAssignTaskDialogOpen] = useState(false); // State for assign task dialog
   const [featureToAssign, setFeatureToAssign] = useState<Feature | null>(null); // State to hold feature details for assignment
+  const [featuresUpdated, setFeaturesUpdated] = useState(false); // New state to trigger feature refresh
   const progressPercentage = `${milestone.progress}%`;
 
   const handleClick = () => {
@@ -30,6 +31,7 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
     setIsAddFeatureDialogOpen(false);
     setFeatureToAssign(feature);
     setIsAssignTaskDialogOpen(true);
+    setFeaturesUpdated(prev => !prev); // Toggle to trigger refresh in MilestoneFeatures
   };
 
   const handleTaskAssigned = () => {
@@ -70,7 +72,7 @@ const MilestoneItem: React.FC<MilestoneItemProps> = ({ milestone, projectId }) =
       {/* Features only show when expanded */}
       {showFeatures && (
         <div className="mt-2">
-          <MilestoneFeatures milestoneId={milestone.id} projectId={projectId} />
+          <MilestoneFeatures milestoneId={milestone.id} projectId={projectId} featuresUpdated={featuresUpdated} />
         </div>
       )}
 

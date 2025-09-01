@@ -7,9 +7,10 @@ import AssignFeatureTaskDialog from './AssignFeatureTaskDialog'; // Import the d
 interface MilestoneFeaturesProps {
   milestoneId: number;
   projectId: number; // Add projectId to props
+  featuresUpdated: boolean; // New prop to trigger refresh
 }
 
-const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, projectId }) => {
+const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, projectId, featuresUpdated }) => {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +33,7 @@ const MilestoneFeatures: React.FC<MilestoneFeaturesProps> = ({ milestoneId, proj
     };
 
     fetchFeatures();
-  }, [milestoneId]);
+  }, [milestoneId, featuresUpdated]);
 
   const handleAssignTaskClick = (feature: Feature, type: 'bug' | 'refactor' | 'research') => {
     setFeatureToAssign(feature);
